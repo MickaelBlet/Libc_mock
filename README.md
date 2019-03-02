@@ -1,4 +1,4 @@
-# Libc_mock
+# Mock_libc
 
 ### example
 

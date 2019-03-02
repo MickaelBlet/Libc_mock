@@ -1,8 +1,3 @@
-# Libc_mock
-
-###example
-
-```cpp
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
@@ -32,4 +27,3 @@ GTEST_TEST(mock_libc, example)
     EXPECT_EQ(read(0, buffer, 42), 1);
     EXPECT_STREQ(buffer, "fake read");
 }
-```

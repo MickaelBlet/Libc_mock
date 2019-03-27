@@ -8,7 +8,7 @@
 using ::testing::_;
 using ::testing::Invoke;
 
-MOCK_LIBC_METHODE3(read, ssize_t (int, void*, size_t));
+MOCK_LIBC_METHOD3(read, ssize_t (int, void*, size_t));
 
 // GTEST_TEST(mock_libc, DISABLED_example)
 GTEST_TEST(mock_libc, example)

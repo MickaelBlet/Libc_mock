@@ -43,7 +43,7 @@ struct mock_libc_##_name \
         return singleton; \
     } \
 }; \
-MOCK_LIBC_RESULT_(__VA_ARGS__) __attribute__((weak))_name( \
+MOCK_LIBC_RESULT_(__VA_ARGS__) __attribute__((weak)) _name( \
     MOCK_LIBC_REAPEAT_(_lvl, MOCK_LIBC_ARG_DECLARATION_, __VA_ARGS__) ) { \
     return mock_libc_##_name::instance()._name( \
         MOCK_LIBC_REAPEAT_(_lvl, MOCK_LIBC_ARG_NAME_, __VA_ARGS__) ); \
@@ -51,16 +51,16 @@ MOCK_LIBC_RESULT_(__VA_ARGS__) __attribute__((weak))_name( \
 
 # define MOCK_LIBC_INSTANCE(_name) mock_libc_##_name::instance()
 
-# define MOCK_LIBC_METHODE0(_name, ...) MOCK_LIBC_WEAK_(0, _name, __VA_ARGS__)
-# define MOCK_LIBC_METHODE1(_name, ...) MOCK_LIBC_WEAK_(1, _name, __VA_ARGS__)
-# define MOCK_LIBC_METHODE2(_name, ...) MOCK_LIBC_WEAK_(2, _name, __VA_ARGS__)
-# define MOCK_LIBC_METHODE3(_name, ...) MOCK_LIBC_WEAK_(3, _name, __VA_ARGS__)
-# define MOCK_LIBC_METHODE4(_name, ...) MOCK_LIBC_WEAK_(4, _name, __VA_ARGS__)
-# define MOCK_LIBC_METHODE5(_name, ...) MOCK_LIBC_WEAK_(5, _name, __VA_ARGS__)
-# define MOCK_LIBC_METHODE6(_name, ...) MOCK_LIBC_WEAK_(6, _name, __VA_ARGS__)
-# define MOCK_LIBC_METHODE7(_name, ...) MOCK_LIBC_WEAK_(7, _name, __VA_ARGS__)
-# define MOCK_LIBC_METHODE8(_name, ...) MOCK_LIBC_WEAK_(8, _name, __VA_ARGS__)
-# define MOCK_LIBC_METHODE9(_name, ...) MOCK_LIBC_WEAK_(9, _name, __VA_ARGS__)
-# define MOCK_LIBC_METHODE10(_name, ...) MOCK_LIBC_WEAK_(10, _name, __VA_ARGS__)
+# define MOCK_LIBC_METHOD0(_name, ...) MOCK_LIBC_WEAK_(0, _name, __VA_ARGS__)
+# define MOCK_LIBC_METHOD1(_name, ...) MOCK_LIBC_WEAK_(1, _name, __VA_ARGS__)
+# define MOCK_LIBC_METHOD2(_name, ...) MOCK_LIBC_WEAK_(2, _name, __VA_ARGS__)
+# define MOCK_LIBC_METHOD3(_name, ...) MOCK_LIBC_WEAK_(3, _name, __VA_ARGS__)
+# define MOCK_LIBC_METHOD4(_name, ...) MOCK_LIBC_WEAK_(4, _name, __VA_ARGS__)
+# define MOCK_LIBC_METHOD5(_name, ...) MOCK_LIBC_WEAK_(5, _name, __VA_ARGS__)
+# define MOCK_LIBC_METHOD6(_name, ...) MOCK_LIBC_WEAK_(6, _name, __VA_ARGS__)
+# define MOCK_LIBC_METHOD7(_name, ...) MOCK_LIBC_WEAK_(7, _name, __VA_ARGS__)
+# define MOCK_LIBC_METHOD8(_name, ...) MOCK_LIBC_WEAK_(8, _name, __VA_ARGS__)
+# define MOCK_LIBC_METHOD9(_name, ...) MOCK_LIBC_WEAK_(9, _name, __VA_ARGS__)
+# define MOCK_LIBC_METHOD10(_name, ...) MOCK_LIBC_WEAK_(10, _name, __VA_ARGS__)
 
 #endif // _MOCK_LIBC_H_

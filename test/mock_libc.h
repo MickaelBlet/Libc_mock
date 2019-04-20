@@ -31,8 +31,6 @@
 # define MOCK_LIBC_ARG_NAME_(N,...) _##N
 # define MOCK_LIBC_ARG_DECLARATION_(N,...) MOCK_LIBC_ARG_(N, __VA_ARGS__) MOCK_LIBC_ARG_NAME_(N)
 
-# define MOCK_LIBC_METHODE_(_lvl, _name, ...) \
-
 # define MOCK_LIBC_WEAK_(_lvl, _name, ...) \
 struct mock_libc_##_name \
 { \

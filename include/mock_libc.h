@@ -1,3 +1,28 @@
+/**
+ * Mock Libc
+ *
+ * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
+ * Copyright (c) 2019 BLET Mickaël.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 #ifndef _MOCK_LIBC_H_
 # define _MOCK_LIBC_H_
 
@@ -13,7 +38,7 @@
 # define MOCK_LIBC_CAT_(x, y) MOCK_LIBC_PRIMITIVE_CAT_(x, y)
 
 # define MOCK_LIBC_REAPEAT_(N,...) MOCK_LIBC_CAT_(MOCK_LIBC_CAT_(MOCK_LIBC_REAPEAT_,N),_)(__VA_ARGS__)
-# define MOCK_LIBC_REAPEAT_0_(M,...) 
+# define MOCK_LIBC_REAPEAT_0_(M,...)
 # define MOCK_LIBC_REAPEAT_1_(M,...) M(1,__VA_ARGS__)
 # define MOCK_LIBC_REAPEAT_2_(M,...) M(1,__VA_ARGS__), M(2,__VA_ARGS__)
 # define MOCK_LIBC_REAPEAT_3_(M,...) M(1,__VA_ARGS__), M(2,__VA_ARGS__), M(3,__VA_ARGS__)
@@ -25,13 +50,8 @@
 # define MOCK_LIBC_REAPEAT_9_(M,...) M(1,__VA_ARGS__), M(2,__VA_ARGS__), M(3,__VA_ARGS__), M(4, __VA_ARGS__), M(5, __VA_ARGS__), M(6, __VA_ARGS__), M(7, __VA_ARGS__), M(8, __VA_ARGS__), M(9, __VA_ARGS__)
 # define MOCK_LIBC_REAPEAT_10_(M,...) M(1,__VA_ARGS__), M(2,__VA_ARGS__), M(3,__VA_ARGS__), M(4, __VA_ARGS__), M(5, __VA_ARGS__), M(6, __VA_ARGS__), M(7, __VA_ARGS__), M(8, __VA_ARGS__), M(9, __VA_ARGS__), M(10, __VA_ARGS__)
 
-# define MOCK_LIBC_RESULT_(...) ::testing::internal::Function<__VA_ARGS__>::Result
-# define MOCK_LIBC_ARG_(N, ...) ::testing::internal::Function<__VA_ARGS__>::Argument##N
-
 # define MOCK_LIBC_ARG_NAME_(N,...) _##N
-# define MOCK_LIBC_ARG_DECLARATION_(N,...) MOCK_LIBC_ARG_(N, __VA_ARGS__) MOCK_LIBC_ARG_NAME_(N)
-
-# define MOCK_LIBC_METHODE_(_lvl, _name, ...) \
+# define MOCK_LIBC_ARG_DECLARATION_(N,...) GMOCK_ARG_(,N, __VA_ARGS__) MOCK_LIBC_ARG_NAME_(N)
 
 # define MOCK_LIBC_WEAK_(_lvl, _name, ...) \
 struct mock_libc_##_name \
@@ -43,7 +63,7 @@ struct mock_libc_##_name \
         return singleton; \
     } \
 }; \
-MOCK_LIBC_RESULT_(__VA_ARGS__) __attribute__((weak)) _name( \
+GMOCK_RESULT_(,__VA_ARGS__) __attribute__((weak)) _name( \
     MOCK_LIBC_REAPEAT_(_lvl, MOCK_LIBC_ARG_DECLARATION_, __VA_ARGS__) ) { \
     return mock_libc_##_name::instance()._name( \
         MOCK_LIBC_REAPEAT_(_lvl, MOCK_LIBC_ARG_NAME_, __VA_ARGS__) ); \

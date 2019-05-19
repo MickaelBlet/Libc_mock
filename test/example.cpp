@@ -3,17 +3,17 @@
 
 #include <cstring>
 
-#include "mock_libc.h"
+#include "mock_weak.h"
 
 using ::testing::_;
 using ::testing::Invoke;
 
-MOCK_LIBC_METHOD3(read, ssize_t (int, void*, size_t));
+MOCK_WEAK_METHOD3(read, ssize_t (int, void*, size_t));
 
-// GTEST_TEST(mock_libc, DISABLED_example)
-GTEST_TEST(mock_libc, example)
+// GTEST_TEST(mock_WEAK, DISABLED_example)
+GTEST_TEST(mock_WEAK, example)
 {
-    EXPECT_CALL(MOCK_LIBC_INSTANCE(read), read(_,_,_))
+    EXPECT_CALL(MOCK_WEAK_INSTANCE(read), read(_,_,_))
     .WillOnce(
         Invoke([](int fd, void *buf, size_t nbytes) -> ssize_t {
             EXPECT_EQ(fd, 0);

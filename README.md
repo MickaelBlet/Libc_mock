@@ -32,4 +32,22 @@ GTEST_TEST(mock_WEAK, example)
     EXPECT_EQ(read(0, buffer, 42), 1);
     EXPECT_STREQ(buffer, "fake read");
 }
+
+// GTEST_TEST(mock_WEAK, DISABLED_example2)
+GTEST_TEST(mock_WEAK, example2)
+{
+    EXPECT_CALL_WEAK3(read)
+    .WillOnce(
+        Invoke([](int fd, void *buf, size_t nbytes) -> ssize_t {
+            EXPECT_EQ(fd, 0);
+            EXPECT_EQ(nbytes, 42);
+            std::memcpy(buf, "fake read", 10);
+            return 1;
+        })
+    );
+
+    char buffer[42];
+    EXPECT_EQ(read(0, buffer, 42), 1);
+    EXPECT_STREQ(buffer, "fake read");
+}
 ```

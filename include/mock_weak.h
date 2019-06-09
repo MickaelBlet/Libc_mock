@@ -40,37 +40,36 @@
 # define MOCK_WEAK_REAPEAT_(N, ...) MOCK_WEAK_CAT_(MOCK_WEAK_CAT_(MOCK_WEAK_REAPEAT_, N), _)(__VA_ARGS__)
 # define MOCK_WEAK_REAPEAT_0_(M, ...)
 # define MOCK_WEAK_REAPEAT_1_(M, ...) M(1,__VA_ARGS__)
-# define MOCK_WEAK_REAPEAT_2_(M, ...) M(1,__VA_ARGS__), M(2,__VA_ARGS__)
-# define MOCK_WEAK_REAPEAT_3_(M, ...) M(1,__VA_ARGS__), M(2,__VA_ARGS__), M(3,__VA_ARGS__)
-# define MOCK_WEAK_REAPEAT_4_(M, ...) M(1,__VA_ARGS__), M(2,__VA_ARGS__), M(3,__VA_ARGS__), M(4, __VA_ARGS__)
-# define MOCK_WEAK_REAPEAT_5_(M, ...) M(1,__VA_ARGS__), M(2,__VA_ARGS__), M(3,__VA_ARGS__), M(4, __VA_ARGS__), M(5, __VA_ARGS__)
-# define MOCK_WEAK_REAPEAT_6_(M, ...) M(1,__VA_ARGS__), M(2,__VA_ARGS__), M(3,__VA_ARGS__), M(4, __VA_ARGS__), M(5, __VA_ARGS__), M(6, __VA_ARGS__)
-# define MOCK_WEAK_REAPEAT_7_(M, ...) M(1,__VA_ARGS__), M(2,__VA_ARGS__), M(3,__VA_ARGS__), M(4, __VA_ARGS__), M(5, __VA_ARGS__), M(6, __VA_ARGS__), M(7, __VA_ARGS__)
-# define MOCK_WEAK_REAPEAT_8_(M, ...) M(1,__VA_ARGS__), M(2,__VA_ARGS__), M(3,__VA_ARGS__), M(4, __VA_ARGS__), M(5, __VA_ARGS__), M(6, __VA_ARGS__), M(7, __VA_ARGS__), M(8, __VA_ARGS__)
-# define MOCK_WEAK_REAPEAT_9_(M, ...) M(1,__VA_ARGS__), M(2,__VA_ARGS__), M(3,__VA_ARGS__), M(4, __VA_ARGS__), M(5, __VA_ARGS__), M(6, __VA_ARGS__), M(7, __VA_ARGS__), M(8, __VA_ARGS__), M(9, __VA_ARGS__)
-# define MOCK_WEAK_REAPEAT_10_(M, ...) M(1,__VA_ARGS__), M(2,__VA_ARGS__), M(3,__VA_ARGS__), M(4, __VA_ARGS__), M(5, __VA_ARGS__), M(6, __VA_ARGS__), M(7, __VA_ARGS__), M(8, __VA_ARGS__), M(9, __VA_ARGS__), M(10, __VA_ARGS__)
+# define MOCK_WEAK_REAPEAT_2_(M, ...) MOCK_WEAK_REAPEAT_1_(M, __VA_ARGS__), M(2, __VA_ARGS__)
+# define MOCK_WEAK_REAPEAT_3_(M, ...) MOCK_WEAK_REAPEAT_2_(M, __VA_ARGS__), M(3, __VA_ARGS__)
+# define MOCK_WEAK_REAPEAT_4_(M, ...) MOCK_WEAK_REAPEAT_3_(M, __VA_ARGS__), M(4, __VA_ARGS__)
+# define MOCK_WEAK_REAPEAT_5_(M, ...) MOCK_WEAK_REAPEAT_4_(M, __VA_ARGS__), M(5, __VA_ARGS__)
+# define MOCK_WEAK_REAPEAT_6_(M, ...) MOCK_WEAK_REAPEAT_5_(M, __VA_ARGS__), M(6, __VA_ARGS__)
+# define MOCK_WEAK_REAPEAT_7_(M, ...) MOCK_WEAK_REAPEAT_6_(M, __VA_ARGS__), M(7, __VA_ARGS__)
+# define MOCK_WEAK_REAPEAT_8_(M, ...) MOCK_WEAK_REAPEAT_7_(M, __VA_ARGS__), M(8, __VA_ARGS__)
+# define MOCK_WEAK_REAPEAT_9_(M, ...) MOCK_WEAK_REAPEAT_8_(M, __VA_ARGS__), M(9, __VA_ARGS__)
+# define MOCK_WEAK_REAPEAT_10_(M, ...) MOCK_WEAK_REAPEAT_9_(M, __VA_ARGS__), M(10, __VA_ARGS__)
 
-# define MOCK_WEAK_EXPECT_CALL_(N, ...) ::testing::_
 # define MOCK_WEAK_ARG_NAME_(N, ...) _##N
 # define MOCK_WEAK_ARG_DECLARATION_(N, ...) GMOCK_ARG_(, N, __VA_ARGS__) MOCK_WEAK_ARG_NAME_(N)
 
 # define MOCK_WEAK_(_lvl, _name, ...)                                           \
-struct MOCK_WEAK_PRIMITIVE_CAT_(Mock_weak_, _name)                              \
+struct MOCK_WEAK_CAT_(Mock_weak_, _name)                                        \
 {                                                                               \
-    MOCK_WEAK_PRIMITIVE_CAT_(MOCK_METHOD, _lvl)(_name, __VA_ARGS__);            \
-    static MOCK_WEAK_PRIMITIVE_CAT_(Mock_weak_, _name) &instance()              \
+    MOCK_WEAK_CAT_(MOCK_METHOD, _lvl)(_name, __VA_ARGS__);                      \
+    static MOCK_WEAK_CAT_(Mock_weak_, _name) &instance()                        \
     {                                                                           \
-        static MOCK_WEAK_PRIMITIVE_CAT_(Mock_weak_, _name) singleton;           \
+        static MOCK_WEAK_CAT_(Mock_weak_, _name) singleton;                     \
         return singleton;                                                       \
     }                                                                           \
 };                                                                              \
 GMOCK_RESULT_(,__VA_ARGS__) __attribute__((weak)) _name(                        \
     MOCK_WEAK_REAPEAT_(_lvl, MOCK_WEAK_ARG_DECLARATION_, __VA_ARGS__) ) {       \
-    return MOCK_WEAK_PRIMITIVE_CAT_(Mock_weak_, _name)::instance()._name(       \
+    return MOCK_WEAK_CAT_(Mock_weak_, _name)::instance()._name(                 \
         MOCK_WEAK_REAPEAT_(_lvl, MOCK_WEAK_ARG_NAME_, __VA_ARGS__) );           \
 }
 
-# define MOCK_WEAK_INSTANCE(_name) MOCK_WEAK_PRIMITIVE_CAT_(Mock_weak_, _name)::instance()
+# define MOCK_WEAK_INSTANCE(_name) MOCK_WEAK_CAT_(Mock_weak_, _name)::instance()
 
 # define MOCK_WEAK_METHOD0(_name, ...) MOCK_WEAK_(0, _name, __VA_ARGS__)
 # define MOCK_WEAK_METHOD1(_name, ...) MOCK_WEAK_(1, _name, __VA_ARGS__)
@@ -83,17 +82,5 @@ GMOCK_RESULT_(,__VA_ARGS__) __attribute__((weak)) _name(                        
 # define MOCK_WEAK_METHOD8(_name, ...) MOCK_WEAK_(8, _name, __VA_ARGS__)
 # define MOCK_WEAK_METHOD9(_name, ...) MOCK_WEAK_(9, _name, __VA_ARGS__)
 # define MOCK_WEAK_METHOD10(_name, ...) MOCK_WEAK_(10, _name, __VA_ARGS__)
-
-# define EXPECT_CALL_WEAK0(_name) EXPECT_CALL(MOCK_WEAK_INSTANCE(_name), _name())
-# define EXPECT_CALL_WEAK1(_name) EXPECT_CALL(MOCK_WEAK_INSTANCE(_name), _name(MOCK_WEAK_REAPEAT_(1, MOCK_WEAK_EXPECT_CALL_, )))
-# define EXPECT_CALL_WEAK2(_name) EXPECT_CALL(MOCK_WEAK_INSTANCE(_name), _name(MOCK_WEAK_REAPEAT_(2, MOCK_WEAK_EXPECT_CALL_, )))
-# define EXPECT_CALL_WEAK3(_name) EXPECT_CALL(MOCK_WEAK_INSTANCE(_name), _name(MOCK_WEAK_REAPEAT_(3, MOCK_WEAK_EXPECT_CALL_, )))
-# define EXPECT_CALL_WEAK4(_name) EXPECT_CALL(MOCK_WEAK_INSTANCE(_name), _name(MOCK_WEAK_REAPEAT_(4, MOCK_WEAK_EXPECT_CALL_, )))
-# define EXPECT_CALL_WEAK5(_name) EXPECT_CALL(MOCK_WEAK_INSTANCE(_name), _name(MOCK_WEAK_REAPEAT_(5, MOCK_WEAK_EXPECT_CALL_, )))
-# define EXPECT_CALL_WEAK6(_name) EXPECT_CALL(MOCK_WEAK_INSTANCE(_name), _name(MOCK_WEAK_REAPEAT_(6, MOCK_WEAK_EXPECT_CALL_, )))
-# define EXPECT_CALL_WEAK7(_name) EXPECT_CALL(MOCK_WEAK_INSTANCE(_name), _name(MOCK_WEAK_REAPEAT_(7, MOCK_WEAK_EXPECT_CALL_, )))
-# define EXPECT_CALL_WEAK8(_name) EXPECT_CALL(MOCK_WEAK_INSTANCE(_name), _name(MOCK_WEAK_REAPEAT_(8, MOCK_WEAK_EXPECT_CALL_, )))
-# define EXPECT_CALL_WEAK9(_name) EXPECT_CALL(MOCK_WEAK_INSTANCE(_name), _name(MOCK_WEAK_REAPEAT_(9, MOCK_WEAK_EXPECT_CALL_, )))
-# define EXPECT_CALL_WEAK10(_name) EXPECT_CALL(MOCK_WEAK_INSTANCE(_name), _name(MOCK_WEAK_REAPEAT_(10, MOCK_WEAK_EXPECT_CALL_, )))
 
 #endif // _MOCK_WEAK_H_

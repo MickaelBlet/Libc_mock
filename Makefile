@@ -87,10 +87,10 @@ TEST_OPTIONS			=	-DVERSION=\"$(VERSION)\" -DLOGGATOR_FORMAT_BUFFER_SIZE=256 \
 							-I$(INCLUDE_DIRECTORY) \
 							-L$(LIBRARY_DIRECTORY) \
 							-l$(LIBRARY_NAME)-debug \
-							-lgtest -lgtest_main -lgmock -lpthread
+							-lgtest -lgtest_main -lgmock -lpthread -ldl
 
-DEBUG_DEPENDENCIES		=	
-RELEASE_DEPENDENCIES	=	
+DEBUG_DEPENDENCIES		=
+RELEASE_DEPENDENCIES	=
 TEST_DEPENDENCIES		=	$(LIBRARY_DIRECTORY)lib$(LIBRARY_NAME)-debug.a
 
 include ./module.mk

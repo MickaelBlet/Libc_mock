@@ -85,10 +85,6 @@ GMOCK_RESULT_(,__VA_ARGS__) __attribute__((weak)) _name(MOCK_WEAK_CAT_(MOCK_WEAK
 # define MOCK_WEAK_METHOD9(_name, ...) MOCK_WEAK_(9, _name, __VA_ARGS__)
 # define MOCK_WEAK_METHOD10(_name, ...) MOCK_WEAK_(10, _name, __VA_ARGS__)
 
-# define LOGGATOR_NARGS_SEQ(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _0, N, ...) N
-# define LOGGATOR_NARGS(...) LOGGATOR_NARGS_SEQ(__VA_ARGS__, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, X, 8, 7, 6, 5, 4, 3, 2, 1)
-#define LOGGATOR_PRE_NARGS(...) LOGGATOR_NARGS(__VA_ARGS__)
-
 # define MOCK_WEAK_DECLTYPE_METHOD0(_name) using decltype_##_name = decltype(_name); MOCK_WEAK_(0, _name, decltype_##_name)
 # define MOCK_WEAK_DECLTYPE_METHOD1(_name) using decltype_##_name = decltype(_name); MOCK_WEAK_(1, _name, decltype_##_name)
 # define MOCK_WEAK_DECLTYPE_METHOD2(_name) using decltype_##_name = decltype(_name); MOCK_WEAK_(2, _name, decltype_##_name)

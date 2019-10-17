@@ -26,7 +26,9 @@
 #ifndef _MOCK_WEAK_H_
 # define _MOCK_WEAK_H_
 
+# ifdef MOCK_WEAK_DLFCN
 # include <dlfcn.h>
+# endif
 # include <gmock/gmock.h>
 
 # ifndef __GNUC__
@@ -54,7 +56,8 @@
 # define MOCK_WEAK_ARG_NAME_(N, ...) _##N
 # define MOCK_WEAK_ARG_DECLARATION_(N, ...) GMOCK_ARG_(, N, __VA_ARGS__) MOCK_WEAK_ARG_NAME_(N)
 
-# define MOCK_WEAK_(_lvl, _name, ...) \
+# ifdef MOCK_WEAK_DLFCN
+#  define MOCK_WEAK_(_lvl, _name, ...) \
 struct MOCK_WEAK_CAT_(Mock_weak_, _name) { \
   typedef GMOCK_RESULT_(,__VA_ARGS__) (*func_t)(MOCK_WEAK_CAT_(MOCK_WEAK_CAT_(MOCK_WEAK_REAPEAT_, _lvl), _)(MOCK_WEAK_ARG_DECLARATION_, __VA_ARGS__)); \
   MOCK_WEAK_CAT_(Mock_weak_, _name)() : isActive(true), real((func_t)dlsym(RTLD_NEXT, #_name)) {} \
@@ -68,10 +71,20 @@ GMOCK_RESULT_(,__VA_ARGS__) __attribute__((weak)) _name(MOCK_WEAK_CAT_(MOCK_WEAK
     return Mock_weak_##_name::instance()._name(MOCK_WEAK_CAT_(MOCK_WEAK_CAT_(MOCK_WEAK_REAPEAT_, _lvl), _)(MOCK_WEAK_ARG_NAME_, __VA_ARGS__)); \
   return Mock_weak_##_name::instance().real(MOCK_WEAK_CAT_(MOCK_WEAK_CAT_(MOCK_WEAK_REAPEAT_, _lvl), _)(MOCK_WEAK_ARG_NAME_, __VA_ARGS__)); \
 }
+#  define MOCK_WEAK_ENABLE(_name) MOCK_WEAK_CAT_(Mock_weak_, _name)::instance().isActive = true;
+#  define MOCK_WEAK_DISABLE(_name) MOCK_WEAK_CAT_(Mock_weak_, _name)::instance().isActive = false;
+# else
+#  define MOCK_WEAK_(_lvl, _name, ...) \
+struct MOCK_WEAK_CAT_(Mock_weak_, _name) { \
+  MOCK_WEAK_CAT_(MOCK_METHOD, _lvl)(_name, __VA_ARGS__); \
+  static Mock_weak_##_name &instance() { static Mock_weak_##_name singleton; return singleton; } \
+}; \
+GMOCK_RESULT_(,__VA_ARGS__) __attribute__((weak)) _name(MOCK_WEAK_CAT_(MOCK_WEAK_CAT_(MOCK_WEAK_REAPEAT_, _lvl), _)(MOCK_WEAK_ARG_DECLARATION_, __VA_ARGS__)) { \
+  return Mock_weak_##_name::instance()._name(MOCK_WEAK_CAT_(MOCK_WEAK_CAT_(MOCK_WEAK_REAPEAT_, _lvl), _)(MOCK_WEAK_ARG_NAME_, __VA_ARGS__)); \
+}
+# endif
 
 # define MOCK_WEAK_INSTANCE(_name) MOCK_WEAK_CAT_(Mock_weak_, _name)::instance()
-# define MOCK_WEAK_ENABLE(_name) MOCK_WEAK_CAT_(Mock_weak_, _name)::instance().isActive = true;
-# define MOCK_WEAK_DISABLE(_name) MOCK_WEAK_CAT_(Mock_weak_, _name)::instance().isActive = false;
 
 # define MOCK_WEAK_METHOD0(_name, ...) MOCK_WEAK_(0, _name, __VA_ARGS__)
 # define MOCK_WEAK_METHOD1(_name, ...) MOCK_WEAK_(1, _name, __VA_ARGS__)
@@ -84,10 +97,6 @@ GMOCK_RESULT_(,__VA_ARGS__) __attribute__((weak)) _name(MOCK_WEAK_CAT_(MOCK_WEAK
 # define MOCK_WEAK_METHOD8(_name, ...) MOCK_WEAK_(8, _name, __VA_ARGS__)
 # define MOCK_WEAK_METHOD9(_name, ...) MOCK_WEAK_(9, _name, __VA_ARGS__)
 # define MOCK_WEAK_METHOD10(_name, ...) MOCK_WEAK_(10, _name, __VA_ARGS__)
-
-# define LOGGATOR_NARGS_SEQ(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _0, N, ...) N
-# define LOGGATOR_NARGS(...) LOGGATOR_NARGS_SEQ(__VA_ARGS__, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, X, 8, 7, 6, 5, 4, 3, 2, 1)
-#define LOGGATOR_PRE_NARGS(...) LOGGATOR_NARGS(__VA_ARGS__)
 
 # define MOCK_WEAK_DECLTYPE_METHOD0(_name) using decltype_##_name = decltype(_name); MOCK_WEAK_(0, _name, decltype_##_name)
 # define MOCK_WEAK_DECLTYPE_METHOD1(_name) using decltype_##_name = decltype(_name); MOCK_WEAK_(1, _name, decltype_##_name)

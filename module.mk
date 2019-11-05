@@ -160,7 +160,7 @@ release:		$(BINARY_RELEASE)
 test:			$(BINARIES_TEST)
 
 clean:
-	$(RM) \
+	$(RM) $(sort \
 	$(LIBRARY_OBJECT_DEBUG) \
 	$(LIBRARY_OBJECT_DEBUG:.o=.d) \
 	$(LIBRARY_OBJECT_RELEASE) \
@@ -170,15 +170,17 @@ clean:
 	$(OBJECT_RELEASE) \
 	$(OBJECT_RELEASE:.o=.d) \
 	$(OBJECT_TEST) \
-	$(OBJECT_TEST:.o=.d)
+	$(OBJECT_TEST:.o=.d) \
+	)
 
 fclean:			clean
-	$(RM) \
+	$(RM) $(sort \
 	$(LIBRARY_DEBUG) \
 	$(LIBRARY_RELEASE) \
 	$(BINARY_DEBUG) \
 	$(BINARY_RELEASE) \
-	$(BINARIES_TEST)
+	$(BINARIES_TEST) \
+	)
 
 re:				fclean
 	$(MAKE) all

@@ -27,15 +27,10 @@
 # define _MOCK_WEAK_H_
 
 # ifdef MOCK_WEAK_DLFCN
-# include <dlfcn.h>
+#  include <dlfcn.h>
 # endif
-# include <gmock/gmock.h>
 
-# ifndef __GNUC__
-#  ifndef __attribute__
-#   define __attribute__(X) /* do nothing */
-#  endif
-# endif
+# include <gmock/gmock.h>
 
 # define MOCK_WEAK_PRIMITIVE_CAT_(x, y) x ## y
 # define MOCK_WEAK_CAT_(x, y) MOCK_WEAK_PRIMITIVE_CAT_(x, y)

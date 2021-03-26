@@ -1,101 +1,44 @@
-##
-## Author: Mickaël BLET
-##
+COMPILER				:=	$(CXX)
+COMPILER_FLAG			:=	-DMOCKW_DLFCN -std=c++98 --pedantic -Wall -Wextra -Werror $(CFLAGS) $(CPPFLAGS) $(CXXFLAGS)
 
-#------------------------------------------------------------------------------
-# common
-#------------------------------------------------------------------------------
+INCLUDES				:=	-I./include
+LIVRARIES				:=	-lgtest -lgtest_main -lgmock -lpthread -ldl
 
-# choose your compilation mode at 'make' call
-#	modes: (debug, release, lib_debug, lib_release, test)
-#	default value: debug
-MODE					=	test
+SOURCES_EXTENTION		:=	cpp
 
-# define version of module
-#	default value: 0.0.0
-VERSION					=	1.0.0
+SOURCE_DIRECTORY		:=	./test
+BUILD_DIRECTORY			:=	./build
+BINARY_DIRECTORY		:=	./bin
 
-# name of your binary
-#	default value: (name of Makefile current directory)
-BINARY_NAME				=	mock_libc
+SOURCES					=	$(shell find $(SOURCE_DIRECTORY) -type f -name "*.$(SOURCES_EXTENTION)")
+OBJECTS					:=	$(patsubst $(SOURCE_DIRECTORY)/%,$(BUILD_DIRECTORY)/%,$(SOURCES:.$(SOURCES_EXTENTION)=.o))
+TESTS					:=	$(patsubst $(SOURCE_DIRECTORY)/%,$(BINARY_DIRECTORY)/%,$(SOURCES:.$(SOURCES_EXTENTION)=.gtest))
 
-# name of your library
-#	default value: (name of Makefile current directory)
-LIBRARY_NAME			=	mock_libc
+all: $(TESTS)
 
-#------------------------------------------------------------------------------
-# directories
-#------------------------------------------------------------------------------
+clean:
+	$(RM) -r $(BUILD_DIRECTORY) $(BINARY_DIRECTORY)
 
-# destination path of your binaries (not forget the last '/')
-#	default value: bin/
-BINARY_DIRECTORY		=	./bin/
+re: clean
+	$(MAKE) all
 
-# destination path of your libraries (not forget the last '/')
-#	default value: lib/
-LIBRARY_DIRECTORY		=	./lib/
+$(DEPENDANCIES):
+	$(MAKE) -C $@
 
-# source path (not forget the last '/')
-#	default value: src/
-SOURCE_DIRECTORY		=	./src/
+.PHONY: all clean re $(DEPENDANCIES)
 
-# source test path (not forget the last '/')
-#	default value: test/
-TEST_DIRECTORY			=	./test/
+$(BINARY_DIRECTORY):
+	mkdir -p $@
 
-# include path (not forget the last '/')
-#	default value: include/
-INCLUDE_DIRECTORY		=	./include/
+$(BUILD_DIRECTORY):
+	mkdir -p $(sort $(dir $(OBJECTS)))
 
-# object path (not forget the last '/')
-#	default value: obj/
-OBJECT_DIRECTORY		=	./obj/
+$(BUILD_DIRECTORY)/%.o: $(SOURCE_DIRECTORY)/%.$(SOURCES_EXTENTION) $(LIBRARIES_DEP) | $(BUILD_DIRECTORY)
+	$(COMPILER) $(COMPILER_FLAG) -MMD -o $@ -c $< $(INCLUDES)
 
-#------------------------------------------------------------------------------
-# compilation
-#------------------------------------------------------------------------------
+$(BINARY_DIRECTORY)/%.gtest: $(BUILD_DIRECTORY)/%.o | $(BINARY_DIRECTORY)
+	$(COMPILER) $(COMPILER_FLAG) -o $@ $< $(LIVRARIES)
 
-# extention of source file
-#	default value: .c
-SOURCE_EXTENTION		=	.cpp
+.SECONDARY: $(OBJECTS)
 
-# exclude source for binary
-BINARY_EXCLUDE_SOURCE	=
-
-# exclude source for library
-LIBRARY_EXCLUDE_SOURCE	=	main.cpp
-
-# exclude source for test
-TEST_EXCLUDE_SOURCE		=
-
-# compilation line:
-#	$(COMPILER) $(FLAGS) ... $(OPTIONS)
-
-DEBUG_COMPILER			=	g++
-RELEASE_COMPILER		=	g++
-TEST_COMPILER			=	g++
-
-DEBUG_FLAGS				=	-std=c++11 -Wall -Wextra -ggdb3
-RELEASE_FLAGS			=	-std=c++11 -Wall -Wextra -Werror -O2
-TEST_FLAGS				=	-std=c++11 -Wall -Wextra -ggdb3
-
-DEBUG_OPTIONS			=	-DVERSION=\"$(VERSION)\" \
-							-I$(INCLUDE_DIRECTORY)
-RELEASE_OPTIONS			=	-DVERSION=\"$(VERSION)\" \
-							-I$(INCLUDE_DIRECTORY)
-TEST_OPTIONS			=	-DVERSION=\"$(VERSION)\" \
-							-I$(INCLUDE_DIRECTORY) \
-							-L$(LIBRARY_DIRECTORY) \
-							-l$(LIBRARY_NAME)-debug \
-							-lgtest -lgtest_main -lgmock -lpthread -ldl
-
-DEBUG_DEPENDENCIES		=
-RELEASE_DEPENDENCIES	=
-TEST_DEPENDENCIES		=	$(LIBRARY_DIRECTORY)lib$(LIBRARY_NAME)-debug.a
-
-include ./module.mk
-
-exe_test:	test
-	$(foreach bin,$(BINARIES_TEST),$(bin) || exit;)
-
-PHONY:
+-include $(OBJECTS:.o=.d)

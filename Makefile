@@ -1,5 +1,5 @@
 COMPILER				:=	$(CXX)
-COMPILER_FLAG			:=	-DMOCKW_DLFCN -std=c++98 --pedantic -Wall -Wextra -Werror $(CFLAGS) $(CPPFLAGS) $(CXXFLAGS)
+COMPILER_FLAG			:=	-DMOCKC_DLFCN -std=c++11 -Wall -Wextra -Werror $(CFLAGS) $(CPPFLAGS) $(CXXFLAGS)
 
 INCLUDES				:=	-I./include
 LIVRARIES				:=	-lgtest -lgtest_main -lgmock -lpthread -ldl

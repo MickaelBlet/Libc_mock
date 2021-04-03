@@ -7,11 +7,11 @@ MOCKC_METHOD0(getchar, int (void)) // at top of source
 MOCKC_DECLTYPE_METHOD0(getchar) // same
 
 // in test method
-MOCKC_INSTANCE(getchar) // get mock weak instance of getchar
+MOCKC_INSTANCE(getchar) // get mockc instance of getchar
 MOCKC_EXPECT_CALL(getchar, ()) // simply use EXPECT_CALL
 // same EXPECT_CALL(MOCKC_INSTANCE(getchar), getchar())
 ```
-With *dlfcn* the mock weak is not active by default
+With *dlfcn* the mockc is not active by default
 ```c
 // in test method
 MOCKC_ENABLE(getchar) // active mock method

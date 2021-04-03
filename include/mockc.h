@@ -1,5 +1,5 @@
 /**
-* MockW
+* MockC
 *
 * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
 * Copyright (c) 2021 BLET Mickaël.
@@ -56,27 +56,27 @@
 #ifdef MOCKC_DLFCN
 /* template guard */
 template<typename T>
-struct MockWeakGuard {
-    MockWeakGuard(T& mockWeak): refMockWeak(mockWeak) {
-        refMockWeak.isActive = true;
+struct MockCGuard {
+    MockCGuard(T& mockC): refMockC(mockC) {
+        refMockC.isActive = true;
     }
-    ~MockWeakGuard() {
-        refMockWeak.isActive = false;
+    ~MockCGuard() {
+        refMockC.isActive = false;
     }
-    T& refMockWeak;
+    T& refMockC;
 };
 template<typename T>
-struct MockWeakGuardReverse {
-    MockWeakGuardReverse(T& mockWeak): refMockWeak(mockWeak) {
-        refMockWeak.isActive = false;
+struct MockCGuardReverse {
+    MockCGuardReverse(T& mockC): refMockC(mockC) {
+        refMockC.isActive = false;
     }
-    ~MockWeakGuardReverse() {
-        refMockWeak.isActive = true;
+    ~MockCGuardReverse() {
+        refMockC.isActive = true;
     }
-    T& refMockWeak;
+    T& refMockC;
 };
-#define MOCKC_GUARD(n) MockWeakGuard<MOCKC_CAT_(MockC_, n)> MOCKC_CAT_(mock_weak_guard_, n)(MOCKC_CAT_(MockC_, n)::instance());
-#define MOCKC_GUARD_REVERSE(n) MockWeakGuardReverse<MOCKC_CAT_(MockC_, n)> MOCKC_CAT_(mock_weak_guard_reverse_, n)(MOCKC_CAT_(MockC_, n)::instance());
+#define MOCKC_GUARD(n) MockCGuard<MOCKC_CAT_(MockC_, n)> MOCKC_CAT_(mockCGuard_, n)(MOCKC_CAT_(MockC_, n)::instance());
+#define MOCKC_GUARD_REVERSE(n) MockCGuardReverse<MOCKC_CAT_(MockC_, n)> MOCKC_CAT_(mockCGuardReverse_, n)(MOCKC_CAT_(MockC_, n)::instance());
 
 #define MOCKC_(i, n, f) \
 \
@@ -168,17 +168,17 @@ GMOCK_RESULT_(, f) n(MOCKC_CAT2_(MOCKC_REPEAT_, i, _)(MOCKC_ARG_DECLARATION_, f)
 #define MOCKC_DECLTYPE_METHOD9(n) using MOCKC_CAT_(decltype_, n) = decltype(n); MOCKC_METHOD9(n, MOCKC_CAT_(decltype_, n))
 #define MOCKC_DECLTYPE_METHOD10(n) using MOCKC_CAT_(decltype_, n) = decltype(n); MOCKC_METHOD10(n, MOCKC_CAT_(decltype_, n))
 #else
-#define MOCKC_DECLTYPE_METHOD0() /* nothing */
-#define MOCKC_DECLTYPE_METHOD1() /* nothing */
-#define MOCKC_DECLTYPE_METHOD2() /* nothing */
-#define MOCKC_DECLTYPE_METHOD3() /* nothing */
-#define MOCKC_DECLTYPE_METHOD4() /* nothing */
-#define MOCKC_DECLTYPE_METHOD5() /* nothing */
-#define MOCKC_DECLTYPE_METHOD6() /* nothing */
-#define MOCKC_DECLTYPE_METHOD7() /* nothing */
-#define MOCKC_DECLTYPE_METHOD8() /* nothing */
-#define MOCKC_DECLTYPE_METHOD9() /* nothing */
-#define MOCKC_DECLTYPE_METHOD10() /* nothing */
+#define MOCKC_DECLTYPE_METHOD0() /* not supported with version < cpp11 */
+#define MOCKC_DECLTYPE_METHOD1() /* not supported with version < cpp11 */
+#define MOCKC_DECLTYPE_METHOD2() /* not supported with version < cpp11 */
+#define MOCKC_DECLTYPE_METHOD3() /* not supported with version < cpp11 */
+#define MOCKC_DECLTYPE_METHOD4() /* not supported with version < cpp11 */
+#define MOCKC_DECLTYPE_METHOD5() /* not supported with version < cpp11 */
+#define MOCKC_DECLTYPE_METHOD6() /* not supported with version < cpp11 */
+#define MOCKC_DECLTYPE_METHOD7() /* not supported with version < cpp11 */
+#define MOCKC_DECLTYPE_METHOD8() /* not supported with version < cpp11 */
+#define MOCKC_DECLTYPE_METHOD9() /* not supported with version < cpp11 */
+#define MOCKC_DECLTYPE_METHOD10() /* not supported with version < cpp11 */
 #endif // __cplusplus >= 201103L
 
 #endif // _MOCKC_H_

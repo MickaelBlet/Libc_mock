@@ -28,8 +28,8 @@ GTEST_TEST(mockc, example_getchar) {
 } // disable  call to mock
 
 // auto find argument type with decltype
-// MOCKC_METHOD3(write, ssize_t (int /* fd */, const void* /* buf */, size_t /* nbytes */)) // cpp98
-MOCKC_DECLTYPE_METHOD3(write);
+MOCKC_METHOD3(write, ssize_t (int /* fd */, const void* /* buf */, size_t /* nbytes */)) // cpp98
+// MOCKC_DECLTYPE_METHOD3(write);
 
 ACTION(write) {
     write(STDOUT_FILENO, STR_AND_SIZE("write: real in mock!\n"));

@@ -94,7 +94,7 @@ Running main() from gtest_main.cc
 #include <cstring>
 #include <cstdio>
 
-#include "mock_weak.h"
+#include "mockc.h"
 
 #define DGTEST_TEST(a, b) GTEST_TEST(a, DISABLED_##b)
 

@@ -2,7 +2,7 @@
  * MockC
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
- * Copyright (c) 2021 BLET Mickael.
+ * Copyright (c) 2021-2023 BLET Mickael.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -53,119 +53,36 @@
 #define MOCKC_ARG_(i, f) MOCKC_CAT_(var_, i)
 #define MOCKC_ARG_DECLARATION_(i, f) GMOCK_ARG_(, i, f) MOCKC_ARG_(i, f)
 
-#ifdef MOCKC_DLFCN
-/* template guard */
-template<typename T>
-struct MockCGuard {
-    MockCGuard(T& mockC) :
-        refMockC(mockC) {
-        refMockC.isActive = true;
-    }
-    ~MockCGuard() {
-        refMockC.isActive = false;
-    }
-    T& refMockC;
-};
-template<typename T>
-struct MockCGuardReverse {
-    MockCGuardReverse(T& mockC) :
-        refMockC(mockC) {
-        refMockC.isActive = false;
-    }
-    ~MockCGuardReverse() {
-        refMockC.isActive = true;
-    }
-    T& refMockC;
-};
-#define MOCKC_GUARD(n) MockCGuard<MOCKC_CAT_(MockC_, n)> MOCKC_CAT_(mockCGuard_, n)(MOCKC_CAT_(MockC_, n)::instance());
-#define MOCKC_GUARD_REVERSE(n) \
-    MockCGuardReverse<MOCKC_CAT_(MockC_, n)> MOCKC_CAT_(mockCGuardReverse_, n)(MOCKC_CAT_(MockC_, n)::instance());
+#define MOCKC_INSTANCE(n)                                                                            \
+    ((MOCKC_CAT_(MockC_, n)::instance())                                                             \
+         ? *(MOCKC_CAT_(MockC_, n)::instance())                                                      \
+         : (throw MockC_InstanceNotFound(__FILE__, MOCKC_TO_STRING_(__LINE__), MOCKC_TO_STRING_(n)), \
+            *(MOCKC_CAT_(MockC_, n)::instance())))
 
-#define MOCKC_(i, n, f, a)                                                                                       \
-                                                                                                                 \
-    struct MOCKC_CAT_(MockC_, n) {                                                                               \
-        typedef GMOCK_RESULT_(, f) (*func_t)(MOCKC_CAT2_(MOCKC_REPEAT_, i, _)(MOCKC_ARG_DECLARATION_, f));       \
-        MOCKC_CAT_(MockC_, n)                                                                                    \
-        () :                                                                                                     \
-            isActive(false),                                                                                     \
-            real((func_t)dlsym(RTLD_NEXT, #n)) {                                                                 \
-            return;                                                                                              \
-        }                                                                                                        \
-        MOCKC_CAT_(MOCK_METHOD, i)(n, f);                                                                        \
-        static MOCKC_CAT_(MockC_, n) & instance() {                                                              \
-            static MOCKC_CAT_(MockC_, n) singleton;                                                              \
-            return singleton;                                                                                    \
-        }                                                                                                        \
-        bool isActive;                                                                                           \
-        func_t real;                                                                                             \
-    };                                                                                                           \
-                                                                                                                 \
-    struct MOCKC_CAT_(Exception_, n) :                                                                           \
-        public std::exception {                                                                                  \
-        MOCKC_CAT_(Exception_, n)                                                                                \
-        (const char* str) throw() :                                                                              \
-            str(str) {                                                                                           \
-            return;                                                                                              \
-        }                                                                                                        \
-        virtual ~MOCKC_CAT_(Exception_, n)() throw() { return; }                                                 \
-        virtual const char* what() const throw() { return str.c_str(); }                                         \
-        const std::string str;                                                                                   \
-    };                                                                                                           \
-                                                                                                                 \
-    GMOCK_RESULT_(, f) n(MOCKC_CAT2_(MOCKC_REPEAT_, i, _)(MOCKC_ARG_DECLARATION_, f)) a {                        \
-        if (MOCKC_CAT_(MockC_, n)::instance().isActive) {                                                        \
-            MOCKC_GUARD_REVERSE(n);                                                                              \
-            return MOCKC_CAT_(MockC_, n)::instance().n(MOCKC_CAT2_(MOCKC_REPEAT_, i, _)(MOCKC_ARG_, f));         \
-        }                                                                                                        \
-        if (MOCKC_CAT_(MockC_, n)::instance().real == NULL) {                                                    \
-            throw MOCKC_CAT_(Exception_,                                                                         \
-                             n)(__FILE__ ":" MOCKC_TO_STRING_(__LINE__) ": real function \"" #n "\" not found"); \
-        }                                                                                                        \
-        return MOCKC_CAT_(MockC_, n)::instance().real(MOCKC_CAT2_(MOCKC_REPEAT_, i, _)(MOCKC_ARG_, f));          \
-    }
-#define MOCKC_ENABLE(n) MOCKC_CAT_(MockC_, n)::instance().isActive = true;
-#define MOCKC_DISABLE(n) MOCKC_CAT_(MockC_, n)::instance().isActive = false;
+#define MOCKC_NEW_INSTANCE(n) MOCKC_CAT_(MockC_, n) MOCKC_CAT_(local_instance_, n)
 
-#else // ! MOCKC_DLFCN
-
-#define MOCKC_(i, n, f, a)                                                                           \
-    struct MOCKC_CAT_(MockC_, n) {                                                                   \
-        MOCKC_CAT_(MOCK_METHOD, i)(n, f);                                                            \
-        static MOCKC_CAT_(MockC_, n) & instance() {                                                  \
-            static MOCKC_CAT_(MockC_, n) singleton;                                                  \
-            return singleton;                                                                        \
-        }                                                                                            \
-    };                                                                                               \
-    GMOCK_RESULT_(, f) n(MOCKC_CAT2_(MOCKC_REPEAT_, i, _)(MOCKC_ARG_DECLARATION_, f)) a {            \
-        return MOCKC_CAT_(MockC_, n)::instance().n(MOCKC_CAT2_(MOCKC_REPEAT_, i, _)(MOCKC_ARG_, f)); \
-    }
-
-#endif // MOCKC_DLFCN
-
-#define MOCKC_INSTANCE(n) MOCKC_CAT_(MockC_, n)::instance()
-
-#define MOCKC_METHOD0(n, f) MOCKC_(0, n, f, )
-#define MOCKC_METHOD1(n, f) MOCKC_(1, n, f, )
-#define MOCKC_METHOD2(n, f) MOCKC_(2, n, f, )
-#define MOCKC_METHOD3(n, f) MOCKC_(3, n, f, )
-#define MOCKC_METHOD4(n, f) MOCKC_(4, n, f, )
-#define MOCKC_METHOD5(n, f) MOCKC_(5, n, f, )
-#define MOCKC_METHOD6(n, f) MOCKC_(6, n, f, )
-#define MOCKC_METHOD7(n, f) MOCKC_(7, n, f, )
-#define MOCKC_METHOD8(n, f) MOCKC_(8, n, f, )
-#define MOCKC_METHOD9(n, f) MOCKC_(9, n, f, )
-#define MOCKC_METHOD10(n, f) MOCKC_(10, n, f, )
-#define MOCKC_ATTRIBUTE_METHOD0(n, f, a) MOCKC_(0, n, f, a)
-#define MOCKC_ATTRIBUTE_METHOD1(n, f, a) MOCKC_(1, n, f, a)
-#define MOCKC_ATTRIBUTE_METHOD2(n, f, a) MOCKC_(2, n, f, a)
-#define MOCKC_ATTRIBUTE_METHOD3(n, f, a) MOCKC_(3, n, f, a)
-#define MOCKC_ATTRIBUTE_METHOD4(n, f, a) MOCKC_(4, n, f, a)
-#define MOCKC_ATTRIBUTE_METHOD5(n, f, a) MOCKC_(5, n, f, a)
-#define MOCKC_ATTRIBUTE_METHOD6(n, f, a) MOCKC_(6, n, f, a)
-#define MOCKC_ATTRIBUTE_METHOD7(n, f, a) MOCKC_(7, n, f, a)
-#define MOCKC_ATTRIBUTE_METHOD8(n, f, a) MOCKC_(8, n, f, a)
-#define MOCKC_ATTRIBUTE_METHOD9(n, f, a) MOCKC_(9, n, f, a)
-#define MOCKC_ATTRIBUTE_METHOD10(n, f, a) MOCKC_(10, n, f, a)
+#define MOCKC_METHOD0(n, f) MOCKC_(0, n, f)
+#define MOCKC_METHOD1(n, f) MOCKC_(1, n, f)
+#define MOCKC_METHOD2(n, f) MOCKC_(2, n, f)
+#define MOCKC_METHOD3(n, f) MOCKC_(3, n, f)
+#define MOCKC_METHOD4(n, f) MOCKC_(4, n, f)
+#define MOCKC_METHOD5(n, f) MOCKC_(5, n, f)
+#define MOCKC_METHOD6(n, f) MOCKC_(6, n, f)
+#define MOCKC_METHOD7(n, f) MOCKC_(7, n, f)
+#define MOCKC_METHOD8(n, f) MOCKC_(8, n, f)
+#define MOCKC_METHOD9(n, f) MOCKC_(9, n, f)
+#define MOCKC_METHOD10(n, f) MOCKC_(10, n, f)
+#define MOCKC_ATTRIBUTE_METHOD0(n, f, a) MOCKC_ATTRIBUTE_(0, n, f, a)
+#define MOCKC_ATTRIBUTE_METHOD1(n, f, a) MOCKC_ATTRIBUTE_(1, n, f, a)
+#define MOCKC_ATTRIBUTE_METHOD2(n, f, a) MOCKC_ATTRIBUTE_(2, n, f, a)
+#define MOCKC_ATTRIBUTE_METHOD3(n, f, a) MOCKC_ATTRIBUTE_(3, n, f, a)
+#define MOCKC_ATTRIBUTE_METHOD4(n, f, a) MOCKC_ATTRIBUTE_(4, n, f, a)
+#define MOCKC_ATTRIBUTE_METHOD5(n, f, a) MOCKC_ATTRIBUTE_(5, n, f, a)
+#define MOCKC_ATTRIBUTE_METHOD6(n, f, a) MOCKC_ATTRIBUTE_(6, n, f, a)
+#define MOCKC_ATTRIBUTE_METHOD7(n, f, a) MOCKC_ATTRIBUTE_(7, n, f, a)
+#define MOCKC_ATTRIBUTE_METHOD8(n, f, a) MOCKC_ATTRIBUTE_(8, n, f, a)
+#define MOCKC_ATTRIBUTE_METHOD9(n, f, a) MOCKC_ATTRIBUTE_(9, n, f, a)
+#define MOCKC_ATTRIBUTE_METHOD10(n, f, a) MOCKC_ATTRIBUTE_(10, n, f, a)
 
 #define MOCKC_EXPECT_CALL(n, p) EXPECT_CALL(MOCKC_INSTANCE(n), n p)
 
@@ -216,5 +133,207 @@ struct MockCGuardReverse {
 #define MOCKC_DECLTYPE_METHOD9()  /* not supported with version < cpp11 */
 #define MOCKC_DECLTYPE_METHOD10() /* not supported with version < cpp11 */
 #endif                            // __cplusplus >= 201103L
+
+struct MockC_InstanceNotFound : public std::exception {
+    MockC_InstanceNotFound(const char* file, const char* line, const char* name) throw() {
+        _message = file;
+        _message += ":";
+        _message += line;
+        _message += " MockC '";
+        _message += name;
+        _message += "' instance not found.";
+    }
+    virtual ~MockC_InstanceNotFound() throw() {}
+    const char* what() const throw() {
+        return _message.c_str();
+    }
+    std::string _message;
+};
+struct MockC_RealFunctionNotFound : public std::exception {
+    MockC_RealFunctionNotFound(const char* file, const char* line, const char* name) throw() {
+        _message = file;
+        _message += ":";
+        _message += line;
+        _message += " MockC '";
+        _message += name;
+        _message += "' real function not found.";
+    }
+    virtual ~MockC_RealFunctionNotFound() throw() {}
+    const char* what() const throw() {
+        return _message.c_str();
+    }
+    std::string _message;
+};
+
+template<typename T>
+struct MockC_Guard {
+    MockC_Guard(T& instance) :
+        _instance(instance) {
+        _instance.isActive = true;
+    }
+    ~MockC_Guard() {
+        _instance.isActive = false;
+    }
+    T& _instance;
+};
+template<typename T>
+struct MockC_GuardReverse {
+    MockC_GuardReverse(T& instance) :
+        _instance(instance) {
+        _instance.isActive = false;
+    }
+    ~MockC_GuardReverse() {
+        _instance.isActive = true;
+    }
+    T& _instance;
+};
+
+template<typename T>
+struct MockC_Singleton {
+    static T*& instance() {
+        static T* singleton = NULL;
+        return singleton;
+    }
+};
+template<typename T>
+struct MockC_InstanceGuard {
+    MockC_InstanceGuard(T& instance) :
+        _instance(instance) {
+        T::instance() = &_instance;
+    }
+    ~MockC_InstanceGuard() {
+        T::instance() = NULL;
+    }
+    T& _instance;
+};
+
+#ifdef MOCKC_DLFCN
+#define MOCKC_GUARD(n) MockC_Guard<MOCKC_CAT_(MockC_, n)> MOCKC_CAT_(mockCGuard_, n)(MOCKC_INSTANCE(n))
+#define MOCKC_GUARD_REVERSE(n) MockC_GuardReverse<MOCKC_CAT_(MockC_, n)> MOCKC_CAT_(mockCGuardReverse_, n)(MOCKC_INSTANCE(n))
+#define MOCKC_ENABLE(n) MOCKC_INSTANCE(n).isActive = true;
+#define MOCKC_DISABLE(n) MOCKC_INSTANCE(n).isActive = false;
+
+#define MOCKC_(i, n, f)                                                                                    \
+    struct MOCKC_CAT_(MockC_, n) :                                                                         \
+        public MockC_Singleton<MOCKC_CAT_(MockC_, n)> {                                                    \
+        typedef GMOCK_RESULT_(, f) (*func_t)(MOCKC_CAT2_(MOCKC_REPEAT_, i, _)(MOCKC_ARG_DECLARATION_, f)); \
+        MOCKC_CAT_(MockC_, n)                                                                              \
+        () :                                                                                               \
+            isActive(false),                                                                               \
+            real((func_t)dlsym(RTLD_NEXT, #n)) {                                                           \
+            instance() = this;                                                                             \
+            return;                                                                                        \
+        }                                                                                                  \
+        ~MOCKC_CAT_(MockC_, n)() {                                                                         \
+            instance() = NULL;                                                                             \
+            return;                                                                                        \
+        }                                                                                                  \
+        MOCKC_CAT_(MOCK_METHOD, i)(n, f);                                                                  \
+        bool isActive;                                                                                     \
+        func_t real;                                                                                       \
+    };                                                                                                     \
+                                                                                                           \
+    GMOCK_RESULT_(, f)                                                                                     \
+    n(MOCKC_CAT2_(MOCKC_REPEAT_, i, _)(MOCKC_ARG_DECLARATION_, f)) {                                       \
+        if (MOCKC_INSTANCE(n).isActive) {                                                                  \
+            MOCKC_GUARD_REVERSE(n);                                                                        \
+            return MOCKC_INSTANCE(n).n(MOCKC_CAT2_(MOCKC_REPEAT_, i, _)(MOCKC_ARG_, f));                   \
+        }                                                                                                  \
+        if (MOCKC_INSTANCE(n).real == NULL) {                                                              \
+            throw MockC_RealFunctionNotFound(__FILE__, MOCKC_TO_STRING_(__LINE__), MOCKC_TO_STRING_(n));   \
+        }                                                                                                  \
+        return MOCKC_INSTANCE(n).real(MOCKC_CAT2_(MOCKC_REPEAT_, i, _)(MOCKC_ARG_, f));                    \
+    }                                                                                                      \
+    struct MOCKC_CAT_(MockC_, n)
+
+#define MOCKC_ATTIBUTE_(i, n, f, a)                                                                        \
+    struct MOCKC_CAT_(MockC_, n) :                                                                         \
+        public MockC_Singleton<MOCKC_CAT_(MockC_, n)> {                                                    \
+        typedef GMOCK_RESULT_(, f) (*func_t)(MOCKC_CAT2_(MOCKC_REPEAT_, i, _)(MOCKC_ARG_DECLARATION_, f)); \
+        MOCKC_CAT_(MockC_, n)                                                                              \
+        () :                                                                                               \
+            isActive(false),                                                                               \
+            real((func_t)dlsym(RTLD_NEXT, #n)) {                                                           \
+            instance() = this;                                                                             \
+            return;                                                                                        \
+        }                                                                                                  \
+        ~MOCKC_CAT_(MockC_, n)() {                                                                         \
+            instance() = NULL;                                                                             \
+            return;                                                                                        \
+        }                                                                                                  \
+        MOCKC_CAT_(MOCK_METHOD, i)(n, f);                                                                  \
+        bool isActive;                                                                                     \
+        func_t real;                                                                                       \
+    };                                                                                                     \
+                                                                                                           \
+    GMOCK_RESULT_(, f)                                                                                     \
+    n(MOCKC_CAT2_(MOCKC_REPEAT_, i, _)(MOCKC_ARG_DECLARATION_, f)) a {                                     \
+        if (MOCKC_INSTANCE(n).isActive) {                                                                  \
+            MOCKC_GUARD_REVERSE(n);                                                                        \
+            return MOCKC_INSTANCE(n).n(MOCKC_CAT2_(MOCKC_REPEAT_, i, _)(MOCKC_ARG_, f));                   \
+        }                                                                                                  \
+        if (MOCKC_INSTANCE(n).real == NULL) {                                                              \
+            throw MockC_RealFunctionNotFound(__FILE__, MOCKC_TO_STRING_(__LINE__), MOCKC_TO_STRING_(n));   \
+        }                                                                                                  \
+        return MOCKC_INSTANCE(n).real(MOCKC_CAT2_(MOCKC_REPEAT_, i, _)(MOCKC_ARG_, f));                    \
+    }                                                                                                      \
+    struct MOCKC_CAT_(MockC_, n)
+
+#else // ! MOCKC_DLFCN
+
+#define MOCKC_GUARD(n) \
+    do {               \
+    } while (0)
+#define MOCKC_GUARD_REVERSE(n) \
+    do {                       \
+    } while (0)
+#define MOCKC_ENABLE(n) \
+    do {                \
+    } while (0)
+#define MOCKC_DISABLE(n) \
+    do {                 \
+    } while (0)
+
+#define MOCKC_(i, n, f)                                                              \
+    struct MOCKC_CAT_(MockC_, n) :                                                   \
+        public MockC_Singleton<MOCKC_CAT_(MockC_, n)> {                              \
+        MOCKC_CAT_(MockC_, n)                                                        \
+        () {                                                                         \
+            instance() = this;                                                       \
+            return;                                                                  \
+        }                                                                            \
+        ~MOCKC_CAT_(MockC_, n)() {                                                   \
+            instance() = NULL;                                                       \
+            return;                                                                  \
+        }                                                                            \
+        MOCKC_CAT_(MOCK_METHOD, i)(n, f);                                            \
+    };                                                                               \
+    GMOCK_RESULT_(, f)                                                               \
+    n(MOCKC_CAT2_(MOCKC_REPEAT_, i, _)(MOCKC_ARG_DECLARATION_, f)) {                 \
+        return MOCKC_INSTANCE(n).n(MOCKC_CAT2_(MOCKC_REPEAT_, i, _)(MOCKC_ARG_, f)); \
+    }                                                                                \
+    struct MOCKC_CAT_(MockC_, n)
+
+#define MOCKC_ATTRIBUTE_(i, n, f, a)                                                 \
+    struct MOCKC_CAT_(MockC_, n) :                                                   \
+        public MockC_Singleton<MOCKC_CAT_(MockC_, n)> {                              \
+        MOCKC_CAT_(MockC_, n)                                                        \
+        () {                                                                         \
+            instance() = this;                                                       \
+            return;                                                                  \
+        }                                                                            \
+        ~MOCKC_CAT_(MockC_, n)() {                                                   \
+            instance() = NULL;                                                       \
+            return;                                                                  \
+        }                                                                            \
+        MOCKC_CAT_(MOCK_METHOD, i)(n, f);                                            \
+    };                                                                               \
+    GMOCK_RESULT_(, f)                                                               \
+    n(MOCKC_CAT2_(MOCKC_REPEAT_, i, _)(MOCKC_ARG_DECLARATION_, f)) a {               \
+        return MOCKC_INSTANCE(n).n(MOCKC_CAT2_(MOCKC_REPEAT_, i, _)(MOCKC_ARG_, f)); \
+    }                                                                                \
+    struct MOCKC_CAT_(MockC_, n)
+
+#endif // MOCKC_DLFCN
 
 #endif // _MOCKC_H_

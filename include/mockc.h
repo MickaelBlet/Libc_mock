@@ -2,7 +2,7 @@
  * MockC
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
- * Copyright (c) 2021-2023 BLET Mickael.
+ * Copyright (c) 2021-2023 BLET Mickaël.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal

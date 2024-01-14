@@ -3,7 +3,7 @@
 
 using ::testing::_;
 
-MOCKC_METHOD3(write, ssize_t(int /* fd */, const void* /* buf */, size_t /* nbytes */)); // cpp98
+MOCKC_METHOD3(ssize_t, write, (int /* fd */, const void* /* buf */, size_t /* nbytes */)); // cpp98
 
 ACTION(write) {
     write(STDOUT_FILENO, "write: real in mock!\n", sizeof("write: real in mock!\n") - 1);

@@ -6,7 +6,7 @@ using ::testing::_;
 using ::testing::Invoke;
 using ::testing::Return;
 
-MOCKC_METHOD0(getchar, int(void));
+MOCKC_METHOD0(int, getchar, ());
 
 GTEST_TEST(mockc, example_getchar) {
     MOCKC_NEW_INSTANCE(getchar); // create new mock instance

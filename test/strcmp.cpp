@@ -11,7 +11,7 @@ using ::testing::Invoke;
 using ::testing::Return;
 
 // create new function and singleton instance for mock
-MOCKC_METHOD2(strcmp, int(const char* __s1, const char* __s2)); // cpp98
+MOCKC_METHOD2(int, strcmp, (const char* __s1, const char* __s2)); // cpp98
 
 ACTION(strcmp) {
     MOCKC_GUARD_REVERSE(strcmp);

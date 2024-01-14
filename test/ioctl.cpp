@@ -7,7 +7,7 @@ using ::testing::_;
 using ::testing::Invoke;
 using ::testing::Return;
 
-MOCKC_METHOD3(variadic_ioctl, int(int fd, unsigned long request, va_list args));
+MOCKC_METHOD3(int, variadic_ioctl, (int, unsigned long, va_list));
 
 int ioctl(int fd, unsigned long request, ...) {
     int ret;

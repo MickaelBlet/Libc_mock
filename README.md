@@ -1,22 +1,21 @@
 # MockC
-Mock **C** function with lower or equal version `1.8.1` of google mock.  
+Mock **C** function with google mock.  
 Compile with dl library
 ```cpp
 using ::testing::_;
 // create class mock
-MOCKC_METHOD3(write, ssize_t(int /* fd */, const void* /* buf */, size_t /* nbytes */)) // at top of source
-MOCKC_DECLTYPE_METHOD3(write) // same __cplusplus >= 201103L
+MOCKC_METHOD3(ssize_t, write, (int /* fd */, const void* /* buf */, size_t /* nbytes */)) // at top of source
 
-// in test method
+// in test function
 MOCKC_NEW_INSTANCE(write); // create a local mock
 MOCKC_INSTANCE(write) // get mockc instance of getchar
 MOCKC_EXPECT_CALL(write, (_, _, _)) // simply use EXPECT_CALL
 // same EXPECT_CALL(MOCKC_INSTANCE(write), write(_, _, _))
 
-// in test method
-MOCKC_ENABLE(write) // active mock method
-MOCKC_DISABLE(write) // desactive mock method
-MOCKC_GUARD(write) // create a guard for mock method
+// in test function
+MOCKC_ENABLE(write) // active mock function
+MOCKC_DISABLE(write) // desactive mock function
+MOCKC_GUARD(write) // create a guard for mock function
 MOCKC_GUARD_REVERSE(write) // disable at constructor > enable at destructor
 ```
 
@@ -28,7 +27,7 @@ MOCKC_GUARD_REVERSE(write) // disable at constructor > enable at destructor
 
 using ::testing::_;
 
-MOCKC_METHOD3(write, ssize_t(int /* fd */, const void* /* buf */, size_t /* nbytes */)); // cpp98
+MOCKC_METHOD3(ssize_t, write, (int /* fd */, const void* /* buf */, size_t /* nbytes */));
 
 ACTION(write) {
     write(STDOUT_FILENO, "write: real in mock!\n", sizeof("write: real in mock!\n") - 1);

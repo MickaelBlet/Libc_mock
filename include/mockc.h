@@ -179,7 +179,9 @@ struct MockC_Singleton {
             isActive(false) {                           \
             instance() = this;                          \
         }                                               \
-        ~MOCKC_CAT_(MockC_, n)() { instance() = NULL; } \
+        ~MOCKC_CAT_(MockC_, n)() {                      \
+            instance() = NULL;                          \
+        }                                               \
         MOCKC_CAT_(MOCK_METHOD, i)(n, r f);             \
         bool isActive;                                  \
     }
@@ -197,17 +199,17 @@ struct MockC_Singleton {
     }                                                                                                           \
     struct MOCKC_CAT_(MockC_, n)
 
-#define MOCKC_FAKE_FUNC_ATTRIBUTE_(i, r, n, f, a)                                                        \
-    r n(MOCKC_CAT2_(MOCKC_REPEAT_, i, _)(MOCKC_ARG_DECLARATION_, r f)) a {                               \
-        if (MOCKC_CAT_(MockC_, n)::instance() && MOCKC_INSTANCE(n).isActive) {                           \
-            MOCKC_GUARD_REVERSE(n);                                                                      \
-            return MOCKC_INSTANCE(n).n(MOCKC_CAT2_(MOCKC_REPEAT_, i, _)(MOCKC_ARG_, f));                 \
-        }                                                                                                \
-        if (MOCKC_CAT_(mockc_real_func_, n) == NULL) {                                                   \
-            throw MockC_RealFunctionNotFound(__FILE__, MOCKC_TO_STRING_(__LINE__), MOCKC_TO_STRING_(n)); \
-        }                                                                                                \
-        return MOCKC_CAT_(mockc_real_func_, n)(MOCKC_CAT2_(MOCKC_REPEAT_, i, _)(MOCKC_ARG_, f));         \
-    }                                                                                                    \
+#define MOCKC_FAKE_FUNC_ATTRIBUTE_(i, r, n, f, a)                                                               \
+    r n(MOCKC_CAT2_(MOCKC_REPEAT_, i, _)(MOCKC_ARG_DECLARATION_, r f)) a {                                      \
+        if (MOCKC_CAT_(MockC_, n)::instance() && MOCKC_INSTANCE(n).isActive) {                                  \
+            MOCKC_GUARD_REVERSE(n);                                                                             \
+            return MOCKC_INSTANCE(n).n(MOCKC_CAT2_(MOCKC_REPEAT_, i, _)(MOCKC_ARG_, f));                        \
+        }                                                                                                       \
+        if (MOCKC_CAT2_(mockc_real_func_, n, _singleton)() == NULL) {                                           \
+            throw MockC_RealFunctionNotFound(__FILE__, MOCKC_TO_STRING_(__LINE__), MOCKC_TO_STRING_(n));        \
+        }                                                                                                       \
+        return MOCKC_CAT2_(mockc_real_func_, n, _singleton)()(MOCKC_CAT2_(MOCKC_REPEAT_, i, _)(MOCKC_ARG_, f)); \
+    }                                                                                                           \
     struct MOCKC_CAT_(MockC_, n)
 #else
 #define MOCKC_CLASS_(i, r, n, f)                        \
@@ -218,7 +220,9 @@ struct MockC_Singleton {
             isActive(false) {                           \
             instance() = this;                          \
         }                                               \
-        ~MOCKC_CAT_(MockC_, n)() { instance() = NULL; } \
+        ~MOCKC_CAT_(MockC_, n)() {                      \
+            instance() = NULL;                          \
+        }                                               \
         MOCK_METHOD(r, n, f, ());                       \
         bool isActive;                                  \
     }
@@ -238,19 +242,19 @@ struct MockC_Singleton {
     }                                                                                                    \
     struct MOCKC_CAT_(MockC_, n)
 
-#define MOCKC_FAKE_FUNC_ATTRIBUTE_(i, r, n, f, a)                                                               \
-    r n(GMOCK_PP_REPEAT(GMOCK_INTERNAL_PARAMETER, (GMOCK_INTERNAL_SIGNATURE(r, f)), i)) a {                     \
-        if (MOCKC_CAT_(MockC_, n)::instance() && MOCKC_INSTANCE(n).isActive) {                                  \
-            MOCKC_GUARD_REVERSE(n);                                                                             \
-            return MOCKC_INSTANCE(n).n(                                                                         \
-                GMOCK_PP_REPEAT(GMOCK_INTERNAL_FORWARD_ARG, (GMOCK_INTERNAL_SIGNATURE(r, f)), i));              \
-        }                                                                                                       \
-        if (MOCKC_CAT_(mockc_real_func_, n) == NULL) {                                                          \
-            throw MockC_RealFunctionNotFound(__FILE__, MOCKC_TO_STRING_(__LINE__), MOCKC_TO_STRING_(n));        \
-        }                                                                                                       \
-        return MOCKC_CAT_(mockc_real_func_,                                                                     \
-                          n)(GMOCK_PP_REPEAT(GMOCK_INTERNAL_FORWARD_ARG, (GMOCK_INTERNAL_SIGNATURE(r, f)), i)); \
-    }                                                                                                           \
+#define MOCKC_FAKE_FUNC_ATTRIBUTE_(i, r, n, f, a)                                                        \
+    r n(GMOCK_PP_REPEAT(GMOCK_INTERNAL_PARAMETER, (GMOCK_INTERNAL_SIGNATURE(r, f)), i)) a {              \
+        if (MOCKC_CAT_(MockC_, n)::instance() && MOCKC_INSTANCE(n).isActive) {                           \
+            MOCKC_GUARD_REVERSE(n);                                                                      \
+            return MOCKC_INSTANCE(n).n(                                                                  \
+                GMOCK_PP_REPEAT(GMOCK_INTERNAL_FORWARD_ARG, (GMOCK_INTERNAL_SIGNATURE(r, f)), i));       \
+        }                                                                                                \
+        if (MOCKC_CAT2_(mockc_real_func_, n, _singleton)() == NULL) {                                    \
+            throw MockC_RealFunctionNotFound(__FILE__, MOCKC_TO_STRING_(__LINE__), MOCKC_TO_STRING_(n)); \
+        }                                                                                                \
+        return MOCKC_CAT2_(mockc_real_func_, n, _singleton)()(                                           \
+            GMOCK_PP_REPEAT(GMOCK_INTERNAL_FORWARD_ARG, (GMOCK_INTERNAL_SIGNATURE(r, f)), i));           \
+    }                                                                                                    \
     struct MOCKC_CAT_(MockC_, n)
 #endif
 

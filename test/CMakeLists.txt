@@ -5,6 +5,8 @@ get_target_property(library_include_dirs "${library_project_name}" INTERFACE_INC
 set(test_source_files
     "${CMAKE_CURRENT_SOURCE_DIR}/getchar.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/ioctl.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/read.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/stat.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/strcmp.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/write.cpp"
 )
@@ -17,9 +19,10 @@ foreach(file ${test_source_files})
         CXX_STANDARD_REQUIRED ON
         CXX_EXTENSIONS OFF
         NO_SYSTEM_FROM_IMPORTED ON
-        COMPILE_FLAGS "-pedantic -Wall -Wextra -Werror"
+        COMPILE_FLAGS "-pedantic -Wall -Wextra"
         INCLUDE_DIRECTORIES "${library_include_dirs};${CMAKE_CURRENT_SOURCE_DIR}/include"
-        LINK_LIBRARIES "gmock_main;gmock;${library_project_name};pthread;dl"
+        LINK_LIBRARIES "gmock_main;gtest;gmock;${library_project_name};pthread;dl"
+        COMPILE_DEFINITIONS "MOCKF_DISABLE_VARIADIC_MACROS"
     )
     target_compile_options("${filenamewe}.${library_project_name}.gtest" PRIVATE -g -O0 --coverage -fprofile-arcs -ftest-coverage -fno-inline -fno-inline-small-functions -fno-default-inline)
     target_link_libraries("${filenamewe}.${library_project_name}.gtest" gcov)

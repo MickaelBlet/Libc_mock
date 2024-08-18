@@ -1,31 +1,26 @@
 #include <string.h>
 
-#include "mockc.h"
-
-#define DGTEST_TEST(a, b) GTEST_TEST(a, DISABLED_##b)
-
-#define STR_AND_SIZE(a) a, sizeof(a) - 1
+#include "blet/mockf.h"
 
 using ::testing::_;
 using ::testing::Invoke;
 using ::testing::Return;
 
 // create new function and singleton instance for mock
-MOCKC_METHOD2(int, strcmp, (const char* __s1, const char* __s2)); // cpp98
+MOCKF_FUNCTION2(int, strcmp, (const char* __s1, const char* __s2));
 
 ACTION(strcmp) {
-    MOCKC_GUARD_REVERSE(strcmp);
     return -42;
 }
 
-GTEST_TEST(mockc, example_strcmp) {
-    MOCKC_NEW_INSTANCE(strcmp);
+TEST(mockf, example_strcmp) {
+    MOCKF_INIT(strcmp);
 
-    // simply use EXPECT_CALL with MOCKC
-    MOCKC_EXPECT_CALL(strcmp, (_, _)).WillRepeatedly(strcmp());
+    // simply use EXPECT_CALL with MOCKF
+    EXPECT_CALL(MOCKF_INSTANCE(strcmp), strcmp(_, _)).WillRepeatedly(strcmp());
 
     {
-        MOCKC_GUARD(strcmp);                    // enable call to mock
+        MOCKF_GUARD(strcmp);                    // enable call to mock
         EXPECT_EQ(strcmp("mock", "mock"), -42); // use mock
     }                                           // disable call to mock
 

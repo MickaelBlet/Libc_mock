@@ -1,37 +1,30 @@
-#include <stdarg.h>
-#include <sys/ioctl.h>
+#include <sys/ioctl.h> // ioctl
 
-#include "mockc.h"
+#include "blet/mockf.h"
 
 using ::testing::_;
-using ::testing::Invoke;
-using ::testing::Return;
 
-MOCKC_METHOD3(int, variadic_ioctl, (int, unsigned long, va_list));
-
-int ioctl(int fd, unsigned long request, ...) {
-    int ret;
-    va_list args;
-    va_start(args, request);
-    ret = variadic_ioctl(fd, request, args);
-    va_end(args);
-    return ret;
-}
+// tranform '...' to 'va_list'
+MOCKF_VARIADIC_ATTRIBUTE_FUNCTION3(int, ioctl, (int /* fd */, unsigned long int /* request */, ...), throw());
 
 ACTION(ioctl) {
+    // take the argument from va_list
     int i = (int)va_arg(arg2, int);
-    printf("%i, %lu, %i", arg0, arg1, i);
+    int j = (int)va_arg(arg2, int);
+
+    printf("%i, %lu, %i, %i\n", arg0, arg1, i, j);
+
     return -42;
 }
 
-GTEST_TEST(mockc, ioctl) {
-    MOCKC_NEW_INSTANCE(variadic_ioctl);
+TEST(mockf, ioctl) {
+    MOCKF_INIT(ioctl);
 
-    // simply use EXPECT_CALL with MOCKC
-    MOCKC_EXPECT_CALL(variadic_ioctl, (_, _, _)).WillRepeatedly(ioctl());
+    // simply use EXPECT_CALL with MOCKF
+    MOCKF_EXPECT_CALL(ioctl, (_, _, _)).WillOnce(ioctl());
 
     {
-        MOCKC_GUARD(variadic_ioctl);       // enable call to mock
-        EXPECT_EQ(ioctl(42, 42, 42), -42); // use mock
-    }                                      // disable call to mock
+        MOCKF_GUARD(ioctl);                 // enable call to mock
+        EXPECT_EQ(ioctl(42, 0, 1, 2), -42); // use mock
+    }                                       // disable call to mock
 }

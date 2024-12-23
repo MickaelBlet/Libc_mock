@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(blet_mockf VERSION 1.0.0 LANGUAGES CXX)
+project(blet_mockf VERSION 1.0.1 LANGUAGES CXX)
 
 # options
 option(BUILD_TESTING "Build test binaries" OFF)

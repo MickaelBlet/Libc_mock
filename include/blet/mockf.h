@@ -58,26 +58,25 @@
  * @param name Name of function
  * @throw blet::mockf::InstanceNotFound if instance of mockf is NULL
  */
-#define MOCKF_GUARD(name) ::blet::mockf::Guard<true, false> mockf_guard_##name(MOCKF_INSTANCE(name).isEnable)
+#define MOCKF_GUARD(name) ::blet::mockf::Guard mockf_guard_##name(MOCKF_INSTANCE(name).isEnable)
 /**
  * @brief Disable mock on scope from name
  * @param name Name of function
  * @throw blet::mockf::InstanceNotFound if instance of mockf is NULL
  */
-#define MOCKF_GUARD_REVERSE(name) \
-    ::blet::mockf::Guard<false, true> mockf_guard_reverse_##name(MOCKF_INSTANCE(name).isEnable)
+#define MOCKF_GUARD_REVERSE(name) ::blet::mockf::GuardReverse mockf_guard_reverse_##name(MOCKF_INSTANCE(name).isEnable)
 /**
  * @brief Enable mock from name
  * @param name Name of function
  * @throw blet::mockf::InstanceNotFound if instance of mockf is NULL
  */
-#define MOCKF_ENABLE(name) MOCKF_INSTANCE(name).isEnable = true;
+#define MOCKF_ENABLE(name) MOCKF_INSTANCE(name).isEnable = true
 /**
  * @brief Disable mock from name
  * @param name Name of function
  * @throw blet::mockf::InstanceNotFound if instance of mockf is NULL
  */
-#define MOCKF_DISABLE(name) MOCKF_INSTANCE(name).isEnable = false;
+#define MOCKF_DISABLE(name) MOCKF_INSTANCE(name).isEnable = false
 
 /**
  * @brief Except call of mock from name
@@ -503,16 +502,18 @@ struct RealVariadicFunctionUsed : public Exception {
 };
 
 template<bool AtConstructor, bool AtDestructor>
-struct Guard {
-    Guard(bool& boolean) :
+struct GuardT {
+    GuardT(bool& boolean) :
         boolean_(boolean) {
         boolean_ = AtConstructor;
     }
-    ~Guard() {
+    ~GuardT() {
         boolean_ = AtDestructor;
     }
     bool& boolean_;
 };
+typedef GuardT<true, false> Guard;
+typedef GuardT<false, true> GuardReverse;
 
 template<typename T>
 struct MockF {

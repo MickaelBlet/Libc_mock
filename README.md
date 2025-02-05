@@ -1,7 +1,7 @@
 # MockF
 
-Mock **C**/**C++** function with gmock.  
-Work with `dl` library.  
+Mock **C**/**C++** functions using gmock.  
+Work with the `dl` library.  
 For more examples, see [docs/examples.md](docs/examples.md).
 
 ## Quickstart
@@ -13,7 +13,7 @@ For more examples, see [docs/examples.md](docs/examples.md).
 
 using ::testing::_;
 
-// create mock class for write
+// Create a mock class for write
 MOCKF_FUNCTION3(ssize_t, write, (int /* fd */, const void* /* buf */, size_t /* nbytes */));
 
 ACTION(write) {
@@ -22,21 +22,21 @@ ACTION(write) {
 }
 
 TEST(mockf, example_write) {
-    // initialize a instance of write mock
+    // Initialize an instance of the write mock
     MOCKF_INIT(write);
 
-    // simply use EXPECT_CALL with MOCKF
+    // Use EXPECT_CALL with MOCKF
     MOCKF_EXPECT_CALL(write, (0, _, _))
-        .WillRepeatedly(write()); // use write action
+        .WillRepeatedly(write()); // Use the write action
 
     {
-        // enable mock
+        // Enable mock
         MOCKF_GUARD(write);
-        // use mock
+        // Use mock
         EXPECT_EQ(write(0, "mock", sizeof("mock") - 1), -42); 
-    } // disable mock
+    } // Mock is disabled here
 
-    // use real write function
+    // Use the real write function
     write(STDOUT_FILENO, "write: use real\n", sizeof("write: use real\n") - 1);
 }
 ```
@@ -62,44 +62,46 @@ write: use real
 ## Macros
 
 ```cpp
-// create class mock
-// at top of test source after include
+// Create a mock class
+// Place this at the top of the test source file after includes
 MOCKF_FUNCTION(ssize_t, write, (int /* fd */, const void* /* buf */, size_t /* nbytes */));
-// or if C++98 and pedantic flag
+// Or, if using C++98 with the pedantic flag
 MOCKF_FUNCTION3(ssize_t, write, (int /* fd */, const void* /* buf */, size_t /* nbytes */));
-// with attribute(s)
+
+// With attributes
 MOCKF_ATTRIBUTE_FUNCTION(int, stat, (const char* /* file */, struct stat* /* buf */), throw());
-// or if C++98 and pedantic flag
+// Or, if using C++98 with the pedantic flag
 MOCKF_ATTRIBUTE_FUNCTION2(int, stat, (const char* /* file */, struct stat* /* buf */), throw());
 
-// create class variadic mock
-// at top of test source after include
-// create a mock replace '...' with 'va_list'
+// Create a variadic mock class
+// Place this at the top of the test source file after includes
+// Replace '...' with 'va_list'
 MOCKF_VARIADIC_FUNCTION(int, fcntl (int /* fd */, int /* cmd */, ...));
-// or if C++98 and pedantic flag
+// Or, if using C++98 with the pedantic flag
 MOCKF_VARIADIC_FUNCTION3(int, fcntl (int /* fd */, int /* cmd */, ...));
-// with attribute(s)
+
+// With attributes
 MOCKF_VARIADIC_ATTRIBUTE_FUNCTION(int, ioctl, (int /* fd */, unsigned long int /* request */, ...), throw());
-// or if C++98 and pedantic flag
+// Or, if using C++98 with the pedantic flag
 MOCKF_VARIADIC_ATTRIBUTE_FUNCTION3(int, ioctl, (int /* fd */, unsigned long int /* request */, ...), throw());
 
-// create a instance of write mock class (mockf_write)
+// Create an instance of the write mock class (mockf_write)
 MOCKF_INIT(write);
-// get mockf instance of write
+// Get the mockf instance of write
 MOCKF_INSTANCE(write)
 
-// active mock function
+// Enable the mock function
 MOCKF_ENABLE(write);
-// desactive mock function
+// Disable the mock function
 MOCKF_DISABLE(write);
-// create a guard for mock function
+// Create a guard for the mock function
 MOCKF_GUARD(write);
-// disable at constructor, enable at destructor
+// Disable at construction, enable at destruction
 MOCKF_GUARD_REVERSE(write);
 
-// simply use EXPECT_CALL
+// Use EXPECT_CALL
 MOCKF_EXPECT_CALL(write, (::testing::_, ::testing::_, ::testing::_))
-// same EXPECT_CALL(MOCKF_INSTANCE(write), write(::testing::_, ::testing::_, ::testing::_))
+// Equivalent to EXPECT_CALL(MOCKF_INSTANCE(write), write(::testing::_, ::testing::_, ::testing::_))
 
-// for C++98 with pedantic flag you can add 'MOCKF_DISABLE_VARIADIC_MACROS' definition for disable the variadic macros
+// For C++98 with the pedantic flag, define 'MOCKF_DISABLE_VARIADIC_MACROS' to disable variadic macros
 ```

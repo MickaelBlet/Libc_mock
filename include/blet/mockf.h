@@ -2,7 +2,7 @@
  * mockf.h
  *
  * Licensed under the MIT License <http://opensource.org/licenses/MIT>.
- * Copyright (c) 2021-2024 BLET Mickaël.
+ * Copyright (c) 2021-2025 BLET Mickaël.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -538,6 +538,67 @@ struct MockF {
     bool isMaster;
 };
 
+template<typename F>
+struct Function;
+
+template<typename R>
+struct Function<R()> {
+    typedef R Result;
+};
+
+template<typename R, typename A1>
+struct Function<R(A1)> : Function<R()> {
+    typedef A1 Argument1;
+};
+
+template<typename R, typename A1, typename A2>
+struct Function<R(A1, A2)> : Function<R(A1)> {
+    typedef A2 Argument2;
+};
+
+template<typename R, typename A1, typename A2, typename A3>
+struct Function<R(A1, A2, A3)> : Function<R(A1, A2)> {
+    typedef A3 Argument3;
+};
+
+template<typename R, typename A1, typename A2, typename A3, typename A4>
+struct Function<R(A1, A2, A3, A4)> : Function<R(A1, A2, A3)> {
+    typedef A4 Argument4;
+};
+
+template<typename R, typename A1, typename A2, typename A3, typename A4, typename A5>
+struct Function<R(A1, A2, A3, A4, A5)> : Function<R(A1, A2, A3, A4)> {
+    typedef A5 Argument5;
+};
+
+template<typename R, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6>
+struct Function<R(A1, A2, A3, A4, A5, A6)> : Function<R(A1, A2, A3, A4, A5)> {
+    typedef A6 Argument6;
+};
+
+template<typename R, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7>
+struct Function<R(A1, A2, A3, A4, A5, A6, A7)> : Function<R(A1, A2, A3, A4, A5, A6)> {
+    typedef A7 Argument7;
+};
+
+template<typename R, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7,
+         typename A8>
+struct Function<R(A1, A2, A3, A4, A5, A6, A7, A8)> : Function<R(A1, A2, A3, A4, A5, A6, A7)> {
+    typedef A8 Argument8;
+};
+
+template<typename R, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7,
+         typename A8, typename A9>
+struct Function<R(A1, A2, A3, A4, A5, A6, A7, A8, A9)> : Function<R(A1, A2, A3, A4, A5, A6, A7, A8)> {
+    typedef A9 Argument9;
+};
+
+template<typename R, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7,
+         typename A8, typename A9, typename A10>
+struct Function<R(A1, A2, A3, A4, A5, A6, A7, A8, A9, A10)> : Function<R(A1, A2, A3, A4, A5, A6, A7, A8, A9)> {
+    typedef A10 Argument10;
+};
+
 } // namespace mockf
 
 } // namespace blet
@@ -573,240 +634,121 @@ struct MockF {
 #define MOCKF_INTERNAL_REMOVE_LAST_ARG_10_(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10) (a1, a2, a3, a4, a5, a6, a7, a8, a9)
 #define MOCKF_INTERNAL_REMOVE_LAST_ARG_(x) MOCKF_INTERNAL_CAT2_(MOCKF_INTERNAL_REMOVE_LAST_ARG_, x, _)
 
-#define MOCKF_INTERNAL_(i, r, n, f)                                                      \
-    namespace blet {                                                                     \
-    namespace mockf {                                                                    \
-    struct MockF_##n : public MockF<MockF_##n> {                                         \
-        typedef r(*function_t) f;                                                        \
-        static function_t real() {                                                       \
-            static function_t func = reinterpret_cast<function_t>(dlsym(RTLD_NEXT, #n)); \
-            return func;                                                                 \
-        }                                                                                \
-        MOCKF_INTERNAL_METHOD_(i, r, n, f);                                              \
-    };                                                                                   \
-    }                                                                                    \
-    }                                                                                    \
+#define MOCKF_INTERNAL_REPEAT_0_(b, m, f) /* nothing */
+#define MOCKF_INTERNAL_REPEAT_1_(b, m, f) m(b, 1, f)
+#define MOCKF_INTERNAL_REPEAT_2_(b, m, f) MOCKF_INTERNAL_REPEAT_1_(b, m, f), m(b, 2, f)
+#define MOCKF_INTERNAL_REPEAT_3_(b, m, f) MOCKF_INTERNAL_REPEAT_2_(b, m, f), m(b, 3, f)
+#define MOCKF_INTERNAL_REPEAT_4_(b, m, f) MOCKF_INTERNAL_REPEAT_3_(b, m, f), m(b, 4, f)
+#define MOCKF_INTERNAL_REPEAT_5_(b, m, f) MOCKF_INTERNAL_REPEAT_4_(b, m, f), m(b, 5, f)
+#define MOCKF_INTERNAL_REPEAT_6_(b, m, f) MOCKF_INTERNAL_REPEAT_5_(b, m, f), m(b, 6, f)
+#define MOCKF_INTERNAL_REPEAT_7_(b, m, f) MOCKF_INTERNAL_REPEAT_6_(b, m, f), m(b, 7, f)
+#define MOCKF_INTERNAL_REPEAT_8_(b, m, f) MOCKF_INTERNAL_REPEAT_7_(b, m, f), m(b, 8, f)
+#define MOCKF_INTERNAL_REPEAT_9_(b, m, f) MOCKF_INTERNAL_REPEAT_8_(b, m, f), m(b, 9, f)
+#define MOCKF_INTERNAL_REPEAT_10_(b, m, f) MOCKF_INTERNAL_REPEAT_9_(b, m, f), m(b, 10, f)
+#define MOCKF_INTERNAL_REPEAT_(i) MOCKF_INTERNAL_CAT2_(MOCKF_INTERNAL_REPEAT_, i, _)
+
+#define MOCKF_INTERNAL_ARG_(b, i, f) MOCKF_INTERNAL_CAT_(mockf_a, MOCKF_INTERNAL_SUB_(i))
+#define MOCKF_INTERNAL_ARG_DECLARATION_(b, i, f) \
+    ::blet::mockf::Function<f>::MOCKF_INTERNAL_CAT_(Argument, i) MOCKF_INTERNAL_ARG_(b, i, f)
+
+#define MOCKF_INTERNAL_(i, r, n, f)                                \
+    MOCKF_INTERNAL_CLASS_IMPL_(i, r, n, f, MOCKF_INTERNAL_METHOD_) \
     MOCKF_INTERNAL_FAKE_FUNC_(i, r, n, f) struct MockFForceSemiColon
 
-#define MOCKF_INTERNAL_ATTRIBUTE_(i, r, n, f, a)                                         \
-    namespace blet {                                                                     \
-    namespace mockf {                                                                    \
-    struct MockF_##n : public MockF<MockF_##n> {                                         \
-        typedef r(*function_t) f;                                                        \
-        static function_t real() {                                                       \
-            static function_t func = reinterpret_cast<function_t>(dlsym(RTLD_NEXT, #n)); \
-            return func;                                                                 \
-        }                                                                                \
-        MOCKF_INTERNAL_METHOD_(i, r, n, f);                                              \
-    };                                                                                   \
-    }                                                                                    \
-    }                                                                                    \
+#define MOCKF_INTERNAL_ATTRIBUTE_(i, r, n, f, a)                   \
+    MOCKF_INTERNAL_CLASS_IMPL_(i, r, n, f, MOCKF_INTERNAL_METHOD_) \
     MOCKF_INTERNAL_FAKE_ATTRIBUTE_FUNC_(i, r, n, f, a) struct MockFForceSemiColon
 
-#define MOCKF_INTERNAL_VARIADIC_(i, r, n, f)                                             \
-    namespace blet {                                                                     \
-    namespace mockf {                                                                    \
-    struct MockF_##n : public MockF<MockF_##n> {                                         \
-        typedef r(*function_t) f;                                                        \
-        static function_t real() {                                                       \
-            static function_t func = reinterpret_cast<function_t>(dlsym(RTLD_NEXT, #n)); \
-            return func;                                                                 \
-        }                                                                                \
-        MOCKF_INTERNAL_VARIADIC_METHOD_(i, r, n, f);                                     \
-    };                                                                                   \
-    }                                                                                    \
-    }                                                                                    \
+#define MOCKF_INTERNAL_VARIADIC_(i, r, n, f)                                \
+    MOCKF_INTERNAL_CLASS_IMPL_(i, r, n, f, MOCKF_INTERNAL_VARIADIC_METHOD_) \
     MOCKF_INTERNAL_FAKE_VARIADIC_FUNC_(i, r, n, f) struct MockFForceSemiColon
 
-#define MOCKF_INTERNAL_ATTRIBUTE_VARIADIC_(i, r, n, f, a)                                \
+#define MOCKF_INTERNAL_ATTRIBUTE_VARIADIC_(i, r, n, f, a)                   \
+    MOCKF_INTERNAL_CLASS_IMPL_(i, r, n, f, MOCKF_INTERNAL_VARIADIC_METHOD_) \
+    MOCKF_INTERNAL_FAKE_ATTRIBUTE_VARIADIC_FUNC_(i, r, n, f, a) struct MockFForceSemiColon
+
+#define MOCKF_INTERNAL_CLASS_IMPL_(i, r, n, f, m)                                        \
     namespace blet {                                                                     \
     namespace mockf {                                                                    \
     struct MockF_##n : public MockF<MockF_##n> {                                         \
+        MockF_##n() :                                                                    \
+            MockF<MockF_##n>() {}                                                        \
         typedef r(*function_t) f;                                                        \
         static function_t real() {                                                       \
             static function_t func = reinterpret_cast<function_t>(dlsym(RTLD_NEXT, #n)); \
             return func;                                                                 \
         }                                                                                \
-        MOCKF_INTERNAL_VARIADIC_METHOD_(i, r, n, f);                                     \
+        m(i, r, n, f);                                                                   \
     };                                                                                   \
     }                                                                                    \
-    }                                                                                    \
-    MOCKF_INTERNAL_FAKE_ATTRIBUTE_VARIADIC_FUNC_(i, r, n, f, a) struct MockFForceSemiColon
+    }
+
+#define MOCKF_INTERNAL_FAKE_FUNC_PROTOTYPE_(i, r, n, f) \
+    r n(MOCKF_INTERNAL_REPEAT_(i)(i, MOCKF_INTERNAL_ARG_DECLARATION_, r f))
+
+#define MOCKF_INTERNAL_FAKE_FUNC_IMPL_(i, r, n, f)                                                        \
+    {                                                                                                     \
+        if (MOCKF_CLASS(n)::instance() && MOCKF_CLASS(n)::instance()->isEnable) {                         \
+            ::blet::mockf::GuardReverse mockf_guard_reverse_##n(MOCKF_CLASS(n)::instance()->isEnable);    \
+            return MOCKF_CLASS(n)::instance()->n(MOCKF_INTERNAL_REPEAT_(i)(i, MOCKF_INTERNAL_ARG_, f));   \
+        }                                                                                                 \
+        if (MOCKF_CLASS(n)::real() == NULL) {                                                             \
+            throw ::blet::mockf::RealFunctionNotFound(__FILE__, MOCKF_INTERNAL_TO_STRING_(__LINE__), #n); \
+        }                                                                                                 \
+        return MOCKF_CLASS(n)::real()(MOCKF_INTERNAL_REPEAT_(i)(i, MOCKF_INTERNAL_ARG_, f));              \
+    }
+
+#define MOCKF_INTERNAL_FAKE_VARIADIC_FUNC_PROTOTYPE_(i, r, n, f)                                                \
+    r n(MOCKF_INTERNAL_REPEAT_(MOCKF_INTERNAL_SUB_(i))(MOCKF_INTERNAL_SUB_(i), MOCKF_INTERNAL_ARG_DECLARATION_, \
+                                                       r MOCKF_INTERNAL_REMOVE_LAST_ARG_(i) f),                 \
+        ...)
+
+#define MOCKF_INTERNAL_FAKE_VARIADIC_FUNC_IMPL_(i, r, n, f)                                                 \
+    {                                                                                                       \
+        if (MOCKF_CLASS(n)::instance() && MOCKF_CLASS(n)::instance()->isEnable) {                           \
+            ::blet::mockf::GuardReverse mockf_guard_reverse_##n(MOCKF_CLASS(n)::instance()->isEnable);      \
+            va_list args;                                                                                   \
+            va_start(args, MOCKF_INTERNAL_ARG_(0, MOCKF_INTERNAL_SUB_(i), 0));                              \
+            r ret = MOCKF_CLASS(n)::instance()->n(                                                          \
+                MOCKF_INTERNAL_REPEAT_(MOCKF_INTERNAL_SUB_(i))(MOCKF_INTERNAL_SUB_(i), MOCKF_INTERNAL_ARG_, \
+                                                               MOCKF_INTERNAL_REMOVE_LAST_ARG_(i) f),       \
+                args);                                                                                      \
+            va_end(args);                                                                                   \
+            return ret;                                                                                     \
+        }                                                                                                   \
+        if (MOCKF_CLASS(n)::real() == NULL) {                                                               \
+            throw ::blet::mockf::RealFunctionNotFound(__FILE__, MOCKF_INTERNAL_TO_STRING_(__LINE__), #n);   \
+        }                                                                                                   \
+        throw ::blet::mockf::RealVariadicFunctionUsed(__FILE__, MOCKF_INTERNAL_TO_STRING_(__LINE__), #n);   \
+    }
+
+#define MOCKF_INTERNAL_FAKE_FUNC_(i, r, n, f) \
+    MOCKF_INTERNAL_FAKE_FUNC_PROTOTYPE_(i, r, n, f) MOCKF_INTERNAL_FAKE_FUNC_IMPL_(i, r, n, f)
+
+#define MOCKF_INTERNAL_FAKE_ATTRIBUTE_FUNC_(i, r, n, f, a) \
+    MOCKF_INTERNAL_FAKE_FUNC_PROTOTYPE_(i, r, n, f) a MOCKF_INTERNAL_FAKE_FUNC_IMPL_(i, r, n, f)
+
+#define MOCKF_INTERNAL_FAKE_VARIADIC_FUNC_(i, r, n, f) \
+    MOCKF_INTERNAL_FAKE_VARIADIC_FUNC_PROTOTYPE_(i, r, n, f) MOCKF_INTERNAL_FAKE_VARIADIC_FUNC_IMPL_(i, r, n, f)
+
+#define MOCKF_INTERNAL_FAKE_ATTRIBUTE_VARIADIC_FUNC_(i, r, n, f, a) \
+    MOCKF_INTERNAL_FAKE_VARIADIC_FUNC_PROTOTYPE_(i, r, n, f) a MOCKF_INTERNAL_FAKE_VARIADIC_FUNC_IMPL_(i, r, n, f)
+
+#define MOCKF_INTERNAL_VARIADIC_METHOD_(i, r, n, f)                                                              \
+    MOCKF_INTERNAL_METHOD_(                                                                                      \
+        i, r, n,                                                                                                 \
+        (MOCKF_INTERNAL_REPEAT_(MOCKF_INTERNAL_SUB_(i))(MOCKF_INTERNAL_SUB_(i), MOCKF_INTERNAL_ARG_DECLARATION_, \
+                                                        r MOCKF_INTERNAL_REMOVE_LAST_ARG_(i) f),                 \
+         va_list))
 
 // gtest > 1.8.1
 #ifdef MOCK_METHOD
 
 #define MOCKF_INTERNAL_METHOD_(i, r, n, f) MOCK_METHOD(r, n, f, ())
 
-#define MOCKF_INTERNAL_FAKE_FUNC_(i, r, n, f)                                                             \
-    r n(GMOCK_PP_REPEAT(GMOCK_INTERNAL_PARAMETER, (GMOCK_INTERNAL_SIGNATURE(r, f)), i)) {                 \
-        if (MOCKF_CLASS(n)::instance() && MOCKF_INSTANCE(n).isEnable) {                                   \
-            MOCKF_GUARD_REVERSE(n);                                                                       \
-            return MOCKF_INSTANCE(n).n(                                                                   \
-                GMOCK_PP_REPEAT(GMOCK_INTERNAL_FORWARD_ARG, (GMOCK_INTERNAL_SIGNATURE(r, f)), i));        \
-        }                                                                                                 \
-        if (MOCKF_CLASS(n)::real() == NULL) {                                                             \
-            throw ::blet::mockf::RealFunctionNotFound(__FILE__, MOCKF_INTERNAL_TO_STRING_(__LINE__), #n); \
-        }                                                                                                 \
-        return MOCKF_CLASS(n)::real()(                                                                    \
-            GMOCK_PP_REPEAT(GMOCK_INTERNAL_FORWARD_ARG, (GMOCK_INTERNAL_SIGNATURE(r, f)), i));            \
-    }
-
-#define MOCKF_INTERNAL_FAKE_ATTRIBUTE_FUNC_(i, r, n, f, a)                                                \
-    r n(GMOCK_PP_REPEAT(GMOCK_INTERNAL_PARAMETER, (GMOCK_INTERNAL_SIGNATURE(r, f)), i)) a {               \
-        if (MOCKF_CLASS(n)::instance() && MOCKF_INSTANCE(n).isEnable) {                                   \
-            MOCKF_GUARD_REVERSE(n);                                                                       \
-            return MOCKF_INSTANCE(n).n(                                                                   \
-                GMOCK_PP_REPEAT(GMOCK_INTERNAL_FORWARD_ARG, (GMOCK_INTERNAL_SIGNATURE(r, f)), i));        \
-        }                                                                                                 \
-        if (MOCKF_CLASS(n)::real() == NULL) {                                                             \
-            throw ::blet::mockf::RealFunctionNotFound(__FILE__, MOCKF_INTERNAL_TO_STRING_(__LINE__), #n); \
-        }                                                                                                 \
-        return MOCKF_CLASS(n)::real()(                                                                    \
-            GMOCK_PP_REPEAT(GMOCK_INTERNAL_FORWARD_ARG, (GMOCK_INTERNAL_SIGNATURE(r, f)), i));            \
-    }
-
-#define MOCKF_INTERNAL_VARIADIC_METHOD_(i, r, n, f)                                                                    \
-    MOCK_METHOD(                                                                                                       \
-        r, n,                                                                                                          \
-        (GMOCK_PP_REPEAT(GMOCK_INTERNAL_PARAMETER,                                                                     \
-                         (GMOCK_INTERNAL_SIGNATURE(r, MOCKF_INTERNAL_REMOVE_LAST_ARG_(i) f)), MOCKF_INTERNAL_SUB_(i)), \
-         va_list),                                                                                                     \
-        ())
-
-#define MOCKF_INTERNAL_FAKE_VARIADIC_FUNC_(i, r, n, f)                                                                 \
-    r n(GMOCK_PP_REPEAT(GMOCK_INTERNAL_PARAMETER, (GMOCK_INTERNAL_SIGNATURE(r, MOCKF_INTERNAL_REMOVE_LAST_ARG_(i) f)), \
-                        MOCKF_INTERNAL_SUB_(i)),                                                                       \
-        ...) {                                                                                                         \
-        if (MOCKF_CLASS(n)::instance() && MOCKF_INSTANCE(n).isEnable) {                                                \
-            MOCKF_GUARD_REVERSE(n);                                                                                    \
-            va_list args;                                                                                              \
-            va_start(args, MOCKF_INTERNAL_CAT_(gmock_a, MOCKF_INTERNAL_SUB_(MOCKF_INTERNAL_SUB_(i))));                 \
-            r ret = MOCKF_INSTANCE(n).n(                                                                               \
-                GMOCK_PP_REPEAT(GMOCK_INTERNAL_FORWARD_ARG,                                                            \
-                                (GMOCK_INTERNAL_SIGNATURE(r, MOCKF_INTERNAL_REMOVE_LAST_ARG_(i) f)),                   \
-                                MOCKF_INTERNAL_SUB_(i)),                                                               \
-                args);                                                                                                 \
-            va_end(args);                                                                                              \
-            return ret;                                                                                                \
-        }                                                                                                              \
-        if (MOCKF_CLASS(n)::real() == NULL) {                                                                          \
-            throw ::blet::mockf::RealFunctionNotFound(__FILE__, MOCKF_INTERNAL_TO_STRING_(__LINE__), #n);              \
-        }                                                                                                              \
-        throw ::blet::mockf::RealVariadicFunctionUsed(__FILE__, MOCKF_INTERNAL_TO_STRING_(__LINE__), #n);              \
-    }
-
-#define MOCKF_INTERNAL_FAKE_ATTRIBUTE_VARIADIC_FUNC_(i, r, n, f, a)                                                    \
-    r n(GMOCK_PP_REPEAT(GMOCK_INTERNAL_PARAMETER, (GMOCK_INTERNAL_SIGNATURE(r, MOCKF_INTERNAL_REMOVE_LAST_ARG_(i) f)), \
-                        MOCKF_INTERNAL_SUB_(i)),                                                                       \
-        ...) a {                                                                                                       \
-        if (MOCKF_CLASS(n)::instance() && MOCKF_INSTANCE(n).isEnable) {                                                \
-            MOCKF_GUARD_REVERSE(n);                                                                                    \
-            va_list args;                                                                                              \
-            va_start(args, MOCKF_INTERNAL_CAT_(gmock_a, MOCKF_INTERNAL_SUB_(MOCKF_INTERNAL_SUB_(i))));                 \
-            r ret = MOCKF_INSTANCE(n).n(                                                                               \
-                GMOCK_PP_REPEAT(GMOCK_INTERNAL_FORWARD_ARG,                                                            \
-                                (GMOCK_INTERNAL_SIGNATURE(r, MOCKF_INTERNAL_REMOVE_LAST_ARG_(i) f)),                   \
-                                MOCKF_INTERNAL_SUB_(i)),                                                               \
-                args);                                                                                                 \
-            va_end(args);                                                                                              \
-            return ret;                                                                                                \
-        }                                                                                                              \
-        if (MOCKF_CLASS(n)::real() == NULL) {                                                                          \
-            throw ::blet::mockf::RealFunctionNotFound(__FILE__, MOCKF_INTERNAL_TO_STRING_(__LINE__), #n);              \
-        }                                                                                                              \
-        throw ::blet::mockf::RealVariadicFunctionUsed(__FILE__, MOCKF_INTERNAL_TO_STRING_(__LINE__), #n);              \
-    }
-
 #else
 
-#define MOCKF_INTERNAL_REPEAT_0_(m, f) /* nothing */
-#define MOCKF_INTERNAL_REPEAT_1_(m, f) m(1, f)
-#define MOCKF_INTERNAL_REPEAT_2_(m, f) MOCKF_INTERNAL_REPEAT_1_(m, f), m(2, f)
-#define MOCKF_INTERNAL_REPEAT_3_(m, f) MOCKF_INTERNAL_REPEAT_2_(m, f), m(3, f)
-#define MOCKF_INTERNAL_REPEAT_4_(m, f) MOCKF_INTERNAL_REPEAT_3_(m, f), m(4, f)
-#define MOCKF_INTERNAL_REPEAT_5_(m, f) MOCKF_INTERNAL_REPEAT_4_(m, f), m(5, f)
-#define MOCKF_INTERNAL_REPEAT_6_(m, f) MOCKF_INTERNAL_REPEAT_5_(m, f), m(6, f)
-#define MOCKF_INTERNAL_REPEAT_7_(m, f) MOCKF_INTERNAL_REPEAT_6_(m, f), m(7, f)
-#define MOCKF_INTERNAL_REPEAT_8_(m, f) MOCKF_INTERNAL_REPEAT_7_(m, f), m(8, f)
-#define MOCKF_INTERNAL_REPEAT_9_(m, f) MOCKF_INTERNAL_REPEAT_8_(m, f), m(9, f)
-#define MOCKF_INTERNAL_REPEAT_10_(m, f) MOCKF_INTERNAL_REPEAT_9_(m, f), m(10, f)
-#define MOCKF_INTERNAL_REPEAT_(i) MOCKF_INTERNAL_CAT2_(MOCKF_INTERNAL_REPEAT_, i, _)
-
-#define MOCKF_INTERNAL_ARG_(i, f) MOCKF_INTERNAL_CAT_(gmock_a, MOCKF_INTERNAL_SUB_(i))
-#define MOCKF_INTERNAL_ARG_DECLARATION_(i, f) GMOCK_ARG_(, i, f) MOCKF_INTERNAL_ARG_(i, f)
-
 #define MOCKF_INTERNAL_METHOD_(i, r, n, f) MOCKF_INTERNAL_CAT_(MOCK_METHOD, i)(n, r f)
-
-#define MOCKF_INTERNAL_FAKE_FUNC_(i, r, n, f)                                                             \
-    r n(MOCKF_INTERNAL_REPEAT_(i)(MOCKF_INTERNAL_ARG_DECLARATION_, r f)) {                                \
-        if (MOCKF_CLASS(n)::instance() && MOCKF_INSTANCE(n).isEnable) {                                   \
-            MOCKF_GUARD_REVERSE(n);                                                                       \
-            return MOCKF_INSTANCE(n).n(MOCKF_INTERNAL_REPEAT_(i)(MOCKF_INTERNAL_ARG_, f));                \
-        }                                                                                                 \
-        if (MOCKF_CLASS(n)::real() == NULL) {                                                             \
-            throw ::blet::mockf::RealFunctionNotFound(__FILE__, MOCKF_INTERNAL_TO_STRING_(__LINE__), #n); \
-        }                                                                                                 \
-        return MOCKF_CLASS(n)::real()(MOCKF_INTERNAL_REPEAT_(i)(MOCKF_INTERNAL_ARG_, f));                 \
-    }
-
-#define MOCKF_INTERNAL_FAKE_ATTRIBUTE_FUNC_(i, r, n, f, a)                                                \
-    r n(MOCKF_INTERNAL_REPEAT_(i)(MOCKF_INTERNAL_ARG_DECLARATION_, r f)) a {                              \
-        if (MOCKF_CLASS(n)::instance() && MOCKF_INSTANCE(n).isEnable) {                                   \
-            MOCKF_GUARD_REVERSE(n);                                                                       \
-            return MOCKF_INSTANCE(n).n(MOCKF_INTERNAL_REPEAT_(i)(MOCKF_INTERNAL_ARG_, f));                \
-        }                                                                                                 \
-        if (MOCKF_CLASS(n)::real() == NULL) {                                                             \
-            throw ::blet::mockf::RealFunctionNotFound(__FILE__, MOCKF_INTERNAL_TO_STRING_(__LINE__), #n); \
-        }                                                                                                 \
-        return MOCKF_CLASS(n)::real()(MOCKF_INTERNAL_REPEAT_(i)(MOCKF_INTERNAL_ARG_, f));                 \
-    }
-
-#define MOCKF_INTERNAL_VARIADIC_METHOD_(i, r, n, f)                                               \
-    MOCKF_INTERNAL_CAT_(MOCK_METHOD, i)                                                           \
-    (n, r(MOCKF_INTERNAL_REPEAT_(MOCKF_INTERNAL_SUB_(i))(MOCKF_INTERNAL_ARG_DECLARATION_,         \
-                                                         r MOCKF_INTERNAL_REMOVE_LAST_ARG_(i) f), \
-          va_list))
-
-#define MOCKF_INTERNAL_FAKE_VARIADIC_FUNC_(i, r, n, f, a)                                                 \
-    r n(MOCKF_INTERNAL_REPEAT_(MOCKF_INTERNAL_SUB_(i))(MOCKF_INTERNAL_ARG_DECLARATION_,                   \
-                                                       r MOCKF_INTERNAL_REMOVE_LAST_ARG_(i) f),           \
-        ...) {                                                                                            \
-        if (MOCKF_CLASS(n)::instance() && MOCKF_INSTANCE(n).isEnable) {                                   \
-            MOCKF_GUARD_REVERSE(n);                                                                       \
-            va_list args;                                                                                 \
-            va_start(args, MOCKF_INTERNAL_CAT_(gmock_a, MOCKF_INTERNAL_SUB_(MOCKF_INTERNAL_SUB_(i))));    \
-            r ret = MOCKF_INSTANCE(n).n(MOCKF_INTERNAL_REPEAT_(MOCKF_INTERNAL_SUB_(i))(                   \
-                                            MOCKF_INTERNAL_ARG_, MOCKF_INTERNAL_REMOVE_LAST_ARG_(i) f),   \
-                                        args);                                                            \
-            va_end(args);                                                                                 \
-            return ret;                                                                                   \
-        }                                                                                                 \
-        if (MOCKF_CLASS(n)::real() == NULL) {                                                             \
-            throw ::blet::mockf::RealFunctionNotFound(__FILE__, MOCKF_INTERNAL_TO_STRING_(__LINE__), #n); \
-        }                                                                                                 \
-        throw ::blet::mockf::RealVariadicFunctionUsed(__FILE__, MOCKF_INTERNAL_TO_STRING_(__LINE__), #n); \
-    }
-
-#define MOCKF_INTERNAL_FAKE_ATTRIBUTE_VARIADIC_FUNC_(i, r, n, f, a)                                       \
-    r n(MOCKF_INTERNAL_REPEAT_(MOCKF_INTERNAL_SUB_(i))(MOCKF_INTERNAL_ARG_DECLARATION_,                   \
-                                                       r MOCKF_INTERNAL_REMOVE_LAST_ARG_(i) f),           \
-        ...) a {                                                                                          \
-        if (MOCKF_CLASS(n)::instance() && MOCKF_INSTANCE(n).isEnable) {                                   \
-            MOCKF_GUARD_REVERSE(n);                                                                       \
-            va_list args;                                                                                 \
-            va_start(args, MOCKF_INTERNAL_CAT_(gmock_a, MOCKF_INTERNAL_SUB_(MOCKF_INTERNAL_SUB_(i))));    \
-            r ret = MOCKF_INSTANCE(n).n(MOCKF_INTERNAL_REPEAT_(MOCKF_INTERNAL_SUB_(i))(                   \
-                                            MOCKF_INTERNAL_ARG_, MOCKF_INTERNAL_REMOVE_LAST_ARG_(i) f),   \
-                                        args);                                                            \
-            va_end(args);                                                                                 \
-            return ret;                                                                                   \
-        }                                                                                                 \
-        if (MOCKF_CLASS(n)::real() == NULL) {                                                             \
-            throw ::blet::mockf::RealFunctionNotFound(__FILE__, MOCKF_INTERNAL_TO_STRING_(__LINE__), #n); \
-        }                                                                                                 \
-        throw ::blet::mockf::RealVariadicFunctionUsed(__FILE__, MOCKF_INTERNAL_TO_STRING_(__LINE__), #n); \
-    }
 
 #endif
 
